@@ -225,10 +225,7 @@ If the user asks about something not in this list, politely say you only have in
 Keep responses concise. Include practical tips. Use Osaka dialect occasionally (Maido!, Okini!).
 """
 
-# API Key
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-if not GROQ_API_KEY:
-    # API Key - SECURE VERSION
+# API Key - CORRECTED INDENTATION
 GROQ_API_KEY = st.secrets.get("GROQ_API_KEY", os.getenv("GROQ_API_KEY", ""))
 
 if not GROQ_API_KEY:
@@ -238,8 +235,6 @@ if not GROQ_API_KEY:
         if not GROQ_API_KEY:
             st.warning("⚠️ Please enter your Groq API Key to use the AI concierge")
             st.stop()
-    if not GROQ_API_KEY:
-        st.stop()
 
 groq_client = Groq(api_key=GROQ_API_KEY)
 
