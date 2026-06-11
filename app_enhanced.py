@@ -18,7 +18,7 @@ if 'messages' not in st.session_state:
 # Page config
 st.set_page_config(page_title="Ask Osaka - AI Restaurant Guide", page_icon="🏯", layout="wide")
 
-# Premium Wix-like CSS
+# Premium Wix-like CSS with Colored Buttons
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -33,6 +33,7 @@ st.markdown("""
     background: linear-gradient(180deg, #fafbfc 0%, #f0f2f5 100%) !important;
 }
 
+/* Header Styling */
 .main h1 {
     font-size: 3rem !important;
     font-weight: 800 !important;
@@ -62,11 +63,19 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover {
     box-shadow: 0 12px 40px rgba(0,0,0,0.12) !important;
 }
 
+/* Center and Style Images */
+[data-testid="stImage"] {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
 [data-testid="stImage"] img {
     border-radius: 0 !important;
     width: 100% !important;
     height: 220px !important;
     object-fit: cover !important;
+    display: block !important;
 }
 
 /* Tags */
@@ -91,37 +100,94 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover {
 .tag-cuisine { background: #f3e8ff; color: #7c3aed; }
 .tag-price { background: #fef3c7; color: #b45309; }
 
-/* Actions */
+/* Action Buttons Area */
 .actions-bar {
     display: flex;
     gap: 0.75rem;
     padding: 1rem 1.5rem 1.5rem 1.5rem !important;
     border-top: 1px solid #f1f5f9 !important;
     margin-top: 1rem !important;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.action-btn {
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border: 1px solid #e2e8f0;
-    background: white;
-    color: #475569;
-    cursor: pointer;
+/* Button 1: Favorite (Pink/Red) */
+.actions-bar .stButton:nth-of-type(1) button {
+    background-color: #ffeff2 !important;
+    color: #e0245e !important;
+    border: 1px solid #ffeff2 !important;
+    font-size: 1.2rem !important;
+    width: 45px !important;
+    height: 45px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.actions-bar .stButton:nth-of-type(1) button:hover {
+    background-color: #e0245e !important;
+    color: white !important;
+    border-color: #e0245e !important;
 }
 
-.action-btn:hover {
-    border-color: #667eea;
-    color: #667eea;
-    background: #f8fafc;
+/* Button 2: Share (Blue) */
+.actions-bar .stButton:nth-of-type(2) button {
+    background-color: #eff6ff !important;
+    color: #2563eb !important;
+    border: 1px solid #eff6ff !important;
+    font-size: 1.2rem !important;
+    width: 45px !important;
+    height: 45px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.actions-bar .stButton:nth-of-type(2) button:hover {
+    background-color: #2563eb !important;
+    color: white !important;
+    border-color: #2563eb !important;
 }
 
-.action-btn.primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    flex: 1;
+/* Button 3: Report (Orange) */
+.actions-bar .stButton:nth-of-type(3) button {
+    background-color: #fff7ed !important;
+    color: #ea580c !important;
+    border: 1px solid #fff7ed !important;
+    font-size: 1.2rem !important;
+    width: 45px !important;
+    height: 45px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.actions-bar .stButton:nth-of-type(3) button:hover {
+    background-color: #ea580c !important;
+    color: white !important;
+    border-color: #ea580c !important;
+}
+
+/* Button 4: Google Info (Gradient Purple) */
+.actions-bar .stButton:nth-of-type(4) button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 25px !important;
+    padding: 0.6rem 1.5rem !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3) !important;
+    flex: 1 !important;
+    max-width: 250px !important;
+}
+.actions-bar .stButton:nth-of-type(4) button:hover {
+    opacity: 0.9 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4) !important;
 }
 
 /* Google Badge */
@@ -158,6 +224,7 @@ section[data-testid="stSidebar"] {
     .main .block-container { padding: 1rem !important; }
     .main h1 { font-size: 2rem !important; }
     [data-testid="stImage"] img { height: 180px !important; }
+    .actions-bar { flex-wrap: wrap; justify-content: center; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -239,7 +306,7 @@ def load_osaka_data():
 
 osaka_data = load_osaka_data()
 
-# NOW display header with loaded data
+# Header and Stats
 st.markdown("""
 <div style="
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -267,18 +334,10 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Stats Bar - NOW osaka_data is defined
 col1, col2, col3 = st.columns(3)
 with col1:
     st.markdown(f"""
-    <div style="
-        text-align: center;
-        padding: 1.5rem;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-        border: 1px solid #e2e8f0;
-    ">
+    <div style="text-align: center; padding: 1.5rem; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #e2e8f0;">
         <div style="font-size: 2rem; font-weight: 800; color: #667eea;">{len(osaka_data)}</div>
         <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; margin-top: 0.25rem;">Restaurants</div>
     </div>
@@ -287,14 +346,7 @@ with col1:
 all_areas = sorted(list(set(r.get('area', 'Unknown') for r in osaka_data)))
 with col2:
     st.markdown(f"""
-    <div style="
-        text-align: center;
-        padding: 1.5rem;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-        border: 1px solid #e2e8f0;
-    ">
+    <div style="text-align: center; padding: 1.5rem; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #e2e8f0;">
         <div style="font-size: 2rem; font-weight: 800; color: #764ba2;">{len(all_areas)}</div>
         <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; margin-top: 0.25rem;">Districts</div>
     </div>
@@ -302,14 +354,7 @@ with col2:
 
 with col3:
     st.markdown("""
-    <div style="
-        text-align: center;
-        padding: 1.5rem;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-        border: 1px solid #e2e8f0;
-    ">
+    <div style="text-align: center; padding: 1.5rem; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #e2e8f0;">
         <div style="font-size: 2rem; font-weight: 800; color: #f59e0b;">AI</div>
         <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; margin-top: 0.25rem;">Powered</div>
     </div>
@@ -319,7 +364,7 @@ all_categories = sorted(list(set(r.get('category', 'Unknown') for r in osaka_dat
 all_prices = sorted(list(set(r.get('price_range', 'Unknown') for r in osaka_data)))
 
 # Sidebar
-st.sidebar.header("🔍 Search & Filters")
+st.sidebar.header(" Search & Filters")
 search_query = st.sidebar.text_input("Search restaurants...", placeholder="e.g., ramen, namba, cheap")
 
 selected_areas = st.sidebar.multiselect("Area", all_areas, default=[])
@@ -391,7 +436,7 @@ if show_map and filtered_data:
         popup_html = f"""
         <div style="width: 220px; padding: 8px; font-family: Inter, sans-serif;">
             <b style="font-size: 14px; color: #1a1a2e;">{restaurant.get('name', 'N/A')}</b><br>
-            <span style="color: #64748b; font-size: 12px;">🍴 {restaurant.get('category', 'N/A')}</span><br>
+            <span style="color: #64748b; font-size: 12px;"> {restaurant.get('category', 'N/A')}</span><br>
             <span style="color: #475569; font-size: 12px;">📞 {restaurant.get('phone', 'N/A')}</span>
         </div>
         """
@@ -405,7 +450,7 @@ if page_data:
     for idx, restaurant in enumerate(page_data):
         with cols[idx % 3]:
             with st.container():
-                # Image
+                # Image (Now Centered)
                 image_url = restaurant.get('image_url', '')
                 if image_url:
                     try:
@@ -449,14 +494,15 @@ if page_data:
                 if website and website.startswith('http'):
                     st.markdown(f"[🌐 Website]({website})")
                 
-                # Actions
-                st.markdown("---")
-                col1, col2, col3 = st.columns(3)
+                # Actions Bar
+                st.markdown('<div class="actions-bar">', unsafe_allow_html=True)
+                
+                col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
                 rest_name = restaurant.get('name', '')
                 
                 with col1:
                     is_fav = rest_name in st.session_state.favorites
-                    if st.button("❤️" if is_fav else "🤍", key=f"fav_{idx}"):
+                    if st.button("❤️" if is_fav else "🤍", key=f"fav_{idx}", help="Favorite"):
                         if is_fav:
                             st.session_state.favorites.remove(rest_name)
                         else:
@@ -464,13 +510,20 @@ if page_data:
                         st.rerun()
                 
                 with col2:
-                    if st.button("📤", key=f"share_{idx}"):
+                    if st.button("📤", key=f"share_{idx}", help="Share"):
                         st.code(f"{rest_name}\n{restaurant.get('address')}\n{restaurant.get('phone')}")
                 
                 with col3:
-                    if st.button("🚩", key=f"report_{idx}"):
+                    if st.button("🚩", key=f"report_{idx}", help="Report"):
                         st.session_state[f"show_report_{idx}"] = not st.session_state.get(f"show_report_{idx}", False)
                         st.rerun()
+                
+                with col4:
+                    if st.button("🔍 Google Info", key=f"google_{idx}", help="Live data"):
+                        st.session_state[f"show_google_{idx}"] = not st.session_state.get(f"show_google_{idx}", False)
+                        st.rerun()
+                
+                st.markdown('</div>', unsafe_allow_html=True)
                 
                 # Report form
                 if st.session_state.get(f"show_report_{idx}"):
@@ -491,21 +544,21 @@ if page_data:
                                 st.rerun()
                 
                 # Google Info
-                if st.button("🔍 Show Live Google Info", key=f"google_{idx}", type="secondary", use_container_width=True):
-                    with st.spinner("Loading..."):
+                if st.session_state.get(f"show_google_{idx}"):
+                    with st.spinner("Loading live data..."):
                         gdata = get_cached_google_data(rest_name, restaurant.get('area'))
                         if gdata:
                             if gdata.get('rating'):
-                                st.markdown(f"<div class='google-badge'>⭐ {gdata['rating']}/5 ({gdata['total_ratings']} reviews)</div>", unsafe_allow_html=True)
+                                st.markdown(f'<div class="google-badge">⭐ {gdata["rating"]}/5 ({gdata["total_ratings"]} reviews)</div>', unsafe_allow_html=True)
                             st.markdown("🟢 Open Now" if gdata.get('open_now') else "🔴 Closed")
                             if gdata.get('photo_url'):
                                 st.image(gdata['photo_url'], use_container_width=True)
                         else:
-                            st.warning("No data found")
+                            st.warning("No live data found")
                 
                 st.divider()
 
-# AI Chat
+# AI Chat Section
 st.markdown("---")
 st.subheader("💬 Ask AI for Recommendations")
 
@@ -526,7 +579,7 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-if prompt := st.chat_input("Ask about Osaka restaurants..."):
+if prompt := st.chat_input("Ask about Osaka restaurants, events, or tips..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
