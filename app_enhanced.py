@@ -18,92 +18,97 @@ if 'messages' not in st.session_state:
 # Page config
 st.set_page_config(page_title="Ask Osaka - AI Restaurant Guide", page_icon="🏯", layout="wide")
 
-# Modern Wix-like CSS
+# Clean Modern CSS
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 * {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
 /* Main container */
 .main .block-container {
-    max-width: 1400px !important;
-    padding: 2rem 3rem !important;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
-    border-radius: 20px;
-    margin: 1rem auto;
+    max-width: 1200px !important;
+    padding: 2rem !important;
+    background: #f8f9fa !important;
 }
 
 /* Header */
 .main h1 {
-    font-size: 3.5rem !important;
+    font-size: 2.5rem !important;
     font-weight: 700 !important;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
     margin-bottom: 0.5rem !important;
-    letter-spacing: -1px;
-}
-
-[data-testid="stCaption"] {
-    font-size: 1.2rem !important;
-    color: #718096 !important;
 }
 
 /* Restaurant Cards */
 div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]) {
     background: white !important;
-    border-radius: 16px !important;
-    padding: 0 !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
-    transition: all 0.3s ease !important;
+    border-radius: 12px !important;
     overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    margin-bottom: 1.5rem !important;
 }
 
 div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover {
-    transform: translateY(-5px) !important;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12) !important;
 }
 
 /* Images */
 [data-testid="stImage"] img {
     border-radius: 0 !important;
     width: 100% !important;
-    height: 250px !important;
+    height: 200px !important;
     object-fit: cover !important;
 }
 
-/* Buttons */
+/* Card content padding */
+.element-container:has(+ div[data-testid="stMarkdown"]:has(h3)) {
+    padding: 1rem !important;
+}
+
+/* Buttons - Clean Icon Style */
 .stButton > button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    color: white !important;
-    border: none !important;
+    background: transparent !important;
+    border: 2px solid #e2e8f0 !important;
+    color: #4a5568 !important;
     border-radius: 8px !important;
-    padding: 0.5rem 1.5rem !important;
+    padding: 0.4rem 0.8rem !important;
     font-weight: 600 !important;
-    font-size: 0.95rem !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4) !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease !important;
+    min-width: 40px !important;
 }
 
 .stButton > button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
+    border-color: #667eea !important;
+    color: #667eea !important;
+    background: rgba(102, 126, 234, 0.05) !important;
+}
+
+/* Google Info Button - Accent Style */
+.stButton > button[data-testid="baseButton-secondary"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border: none !important;
+    width: 100% !important;
+    padding: 0.6rem !important;
+}
+
+.stButton > button[data-testid="baseButton-secondary"]:hover {
+    opacity: 0.9 !important;
+    transform: none !important;
 }
 
 /* Sidebar */
 section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%) !important;
+    background: white !important;
     border-right: 1px solid #e2e8f0 !important;
-}
-
-section[data-testid="stSidebar"] h2 {
-    color: #2d3748 !important;
-    font-size: 1.3rem !important;
-    font-weight: 600 !important;
 }
 
 /* Inputs */
@@ -111,66 +116,36 @@ section[data-testid="stSidebar"] h2 {
 [data-testid="stSelectbox"] select,
 [data-testid="stMultiselect"] select {
     border-radius: 8px !important;
-    border: 2px solid #e2e8f0 !important;
-    padding: 0.6rem !important;
-    font-size: 0.95rem !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 0.5rem !important;
 }
 
 [data-testid="stTextInput"] input:focus,
 [data-testid="stSelectbox"] select:focus,
 [data-testid="stMultiselect"] select:focus {
     border-color: #667eea !important;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1) !important;
 }
 
 /* Google Badge */
 .google-badge {
     background: linear-gradient(135deg, #4285F4, #34A853, #FBBC05, #EA4335) !important;
     color: white !important;
-    padding: 6px 12px !important;
-    border-radius: 20px !important;
-    font-size: 0.85rem !important;
+    padding: 4px 10px !important;
+    border-radius: 16px !important;
+    font-size: 0.8rem !important;
     font-weight: 600 !important;
     display: inline-block !important;
-    margin: 8px 0 !important;
-    box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3) !important;
+    margin: 6px 0 !important;
 }
 
 /* Chat */
 [data-testid="stChatMessage"] {
     border-radius: 12px !important;
+    background: white !important;
     padding: 1rem !important;
-    margin: 1rem 0 !important;
-}
-
-/* Alerts */
-[data-testid="stAlert"] {
-    border-radius: 10px !important;
-    border: none !important;
-}
-
-/* Dividers */
-[data-testid="stHorizontalLine"] {
-    border: none !important;
-    height: 2px !important;
-    background: linear-gradient(90deg, transparent, #e2e8f0, transparent) !important;
-    margin: 1.5rem 0 !important;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 4px;
+    margin: 0.5rem 0 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
 }
 
 /* Mobile */
@@ -179,18 +154,21 @@ section[data-testid="stSidebar"] h2 {
         padding: 1rem !important;
     }
     .main h1 {
-        font-size: 2rem !important;
+        font-size: 1.8rem !important;
+    }
+    [data-testid="stImage"] img {
+        height: 150px !important;
     }
 }
 
 /* Animations */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-[data-testid="stVerticalBlock"] {
-    animation: fadeIn 0.5s ease-out;
+[data-testid="stVerticalBlock"] > div {
+    animation: fadeIn 0.4s ease-out;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -260,15 +238,13 @@ def get_google_places_data(restaurant_name, area):
 def get_cached_google_data(restaurant_name, area):
     return get_google_places_data(restaurant_name, area)
 
-# Modern Hero Section
-col_hero1, col_hero2 = st.columns([3, 1])
-with col_hero1:
+# Hero Section
+col1, col2 = st.columns([3, 1])
+with col1:
     st.title("🏯 Ask Osaka")
-    st.markdown('<p style="font-size: 1.2rem; color: #718096; margin-top: -10px;">Your AI-powered guide to Osaka\'s best restaurants<br><span style="color: #667eea; font-weight: 600;">900+ verified spots • Live data • Smart recommendations</span></p>', unsafe_allow_html=True)
-with col_hero2:
-    st.image("https://cdn-icons-png.flaticon.com/512/2331/2331966.png", width=100)
-
-st.markdown("<div style='height: 2rem;'></div>", unsafe_allow_html=True)
+    st.caption("Your AI-powered guide to Osaka's best restaurants • 900+ verified spots")
+with col2:
+    st.image("https://cdn-icons-png.flaticon.com/512/2331/2331966.png", width=80)
 
 # Load data
 @st.cache_data(ttl=300)
@@ -317,9 +293,7 @@ if st.session_state.favorites:
     st.sidebar.success(f"{len(st.session_state.favorites)} saved")
     for fav_name in st.session_state.favorites[:5]:
         st.sidebar.markdown(f"• {fav_name}")
-    if len(st.session_state.favorites) > 5:
-        st.sidebar.markdown(f"...and {len(st.session_state.favorites) - 5} more")
-    if st.sidebar.button("Clear Favorites"):
+    if st.sidebar.button("Clear Favorites", key="clear_fav"):
         st.session_state.favorites = []
         st.rerun()
 else:
@@ -363,8 +337,7 @@ if show_map and filtered_data:
             <b style="font-size: 14px;">{restaurant.get('name', 'N/A')}</b><br>
             🍴 {restaurant.get('category', 'N/A')}<br>
             💰 {restaurant.get('price_range', 'N/A')}<br>
-            📞 {restaurant.get('phone', 'N/A')}<br>
-            📮 {restaurant.get('address', 'Address N/A')}
+            📞 {restaurant.get('phone', 'N/A')}
         </div>
         """
         folium.Marker(coords, popup=folium.Popup(popup_html, max_width=300), tooltip=restaurant.get('name')).add_to(m)
@@ -372,7 +345,7 @@ if show_map and filtered_data:
 
 # Display restaurants
 if page_data:
-    st.subheader(f"🍽️ Restaurants (Page {page})")
+    st.subheader(f"️ Restaurants (Page {page})")
     cols = st.columns(3)
     for idx, restaurant in enumerate(page_data):
         with cols[idx % 3]:
@@ -397,7 +370,7 @@ if page_data:
                 if restaurant.get('phone'):
                     st.markdown(f"📞 {restaurant.get('phone')}")
                 if restaurant.get('hours'):
-                    st.markdown(f"🕐 {restaurant.get('hours')} (Closed: {restaurant.get('closed', 'None')})")
+                    st.markdown(f" {restaurant.get('hours')} (Closed: {restaurant.get('closed', 'None')})")
                 
                 st.markdown("---")
                 if restaurant.get('description'):
@@ -413,13 +386,14 @@ if page_data:
                 if website and website.startswith('http'):
                     st.markdown(f"[🌐 Website]({website})")
                 
-                # Action buttons
+                # Action buttons - Clean layout
+                st.markdown("---")
                 col1, col2, col3 = st.columns(3)
                 rest_name = restaurant.get('name', '')
                 
                 with col1:
                     is_fav = rest_name in st.session_state.favorites
-                    if st.button("❤️" if is_fav else "🤍", key=f"fav_{idx}"):
+                    if st.button("❤️" if is_fav else "🤍", key=f"fav_{idx}", help="Favorite"):
                         if is_fav:
                             st.session_state.favorites.remove(rest_name)
                         else:
@@ -427,28 +401,36 @@ if page_data:
                         st.rerun()
                 
                 with col2:
-                    if st.button("📤", key=f"share_{idx}"):
+                    if st.button("", key=f"share_{idx}", help="Share"):
                         st.code(f"{rest_name}\n{restaurant.get('address')}\n{restaurant.get('phone')}")
                 
                 with col3:
-                    if st.button("🚩", key=f"report_{idx}"):
-                        st.session_state[f"show_report_{idx}"] = True
+                    if st.button("🚩", key=f"report_{idx}", help="Report"):
+                        st.session_state[f"show_report_{idx}"] = not st.session_state.get(f"show_report_{idx}", False)
+                        st.rerun()
                 
-                # Report form
+                # Report form - Inline
                 if st.session_state.get(f"show_report_{idx}"):
-                    with st.form(f"report_{idx}"):
-                        issue = st.selectbox("Issue", ["Wrong hours", "Wrong phone", "Closed", "Other"])
-                        desc = st.text_area("Details")
-                        if st.form_submit_button("Submit"):
+                    with st.form(f"report_form_{idx}"):
+                        st.markdown("**Report Issue**")
+                        issue = st.selectbox("What's wrong?", ["Wrong hours", "Wrong phone", "Closed", "Other"])
+                        desc = st.text_area("Details", placeholder="Optional")
+                        col_a, col_b = st.columns(2)
+                        with col_a:
+                            submitted = st.form_submit_button("Submit")
+                        with col_b:
+                            cancel = st.form_submit_button("Cancel")
+                        
+                        if submitted:
                             save_feedback(rest_name, issue, desc)
                             st.success("Thanks!")
                             st.session_state[f"show_report_{idx}"] = False
                             st.rerun()
-                        if st.form_submit_button("Cancel"):
+                        if cancel:
                             st.session_state[f"show_report_{idx}"] = False
                             st.rerun()
                 
-                # Google Info
+                # Google Info Button
                 if st.button("🔍 Show Live Google Info", key=f"google_{idx}", type="secondary", use_container_width=True):
                     with st.spinner("Loading..."):
                         gdata = get_cached_google_data(rest_name, restaurant.get('area'))
@@ -461,7 +443,7 @@ if page_data:
                         else:
                             st.warning("No data found")
                 
-                st.divider()
+                st.markdown("</div>", unsafe_allow_html=True)
 
 # AI Chat
 st.markdown("---")
