@@ -23,20 +23,16 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* Global Reset */
 * {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
-/* Main Container */
 .main .block-container {
     max-width: 1400px !important;
     padding: 2.5rem 3rem !important;
     background: linear-gradient(180deg, #fafbfc 0%, #f0f2f5 100%) !important;
-    min-height: 100vh !important;
 }
 
-/* Hero Header */
 .main h1 {
     font-size: 3rem !important;
     font-weight: 800 !important;
@@ -44,44 +40,11 @@ st.markdown("""
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     margin-bottom: 0.5rem !important;
-    letter-spacing: -0.02em !important;
 }
 
 [data-testid="stCaption"] {
     font-size: 1.1rem !important;
     color: #64748b !important;
-    font-weight: 400 !important;
-    line-height: 1.6 !important;
-}
-
-/* Stats Bar */
-.stats-bar {
-    display: flex;
-    gap: 2rem;
-    margin: 1.5rem 0 2.5rem 0;
-    padding: 1rem 1.5rem;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-    border: 1px solid #e2e8f0;
-}
-
-.stat-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.stat-number {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1a1a2e;
-}
-
-.stat-label {
-    font-size: 0.85rem;
-    color: #64748b;
-    font-weight: 500;
 }
 
 /* Restaurant Cards */
@@ -92,46 +55,21 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]) {
     box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     border: 1px solid #e2e8f0 !important;
-    height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
 }
 
 div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover {
     transform: translateY(-6px) !important;
     box-shadow: 0 12px 40px rgba(0,0,0,0.12) !important;
-    border-color: #cbd5e1 !important;
 }
 
-/* Card Image */
 [data-testid="stImage"] img {
     border-radius: 0 !important;
     width: 100% !important;
     height: 220px !important;
     object-fit: cover !important;
-    transition: transform 0.3s ease !important;
 }
 
-div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover [data-testid="stImage"] img {
-    transform: scale(1.05) !important;
-}
-
-/* Card Content */
-.element-container:has(+ div[data-testid="stMarkdown"]:has(h3)) {
-    padding: 1.5rem 1.5rem 0.5rem 1.5rem !important;
-    flex: 1 !important;
-}
-
-/* Restaurant Name */
-[data-testid="stMarkdown"]:has(h3) h3 {
-    font-size: 1.3rem !important;
-    font-weight: 700 !important;
-    color: #1a1a2e !important;
-    margin: 0 0 0.75rem 0 !important;
-    line-height: 1.3 !important;
-}
-
-/* Tags Row */
+/* Tags */
 .tags-row {
     display: flex;
     flex-wrap: wrap;
@@ -147,107 +85,26 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover [
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
-    letter-spacing: 0.01em;
 }
 
-.tag-location {
-    background: #dbeafe;
-    color: #1e40af;
-}
+.tag-location { background: #dbeafe; color: #1e40af; }
+.tag-cuisine { background: #f3e8ff; color: #7c3aed; }
+.tag-price { background: #fef3c7; color: #b45309; }
 
-.tag-cuisine {
-    background: #f3e8ff;
-    color: #7c3aed;
-}
-
-.tag-price {
-    background: #fef3c7;
-    color: #b45309;
-}
-
-/* Details Section */
-.details-section {
-    padding: 0 1.5rem !important;
-    flex: 1 !important;
-}
-
-.details-section p {
-    font-size: 0.9rem !important;
-    color: #475569 !important;
-    line-height: 1.7 !important;
-    margin: 0.5rem 0 !important;
-}
-
-/* Description Box */
-.description-box {
-    margin: 1rem 1.5rem !important;
-    padding: 1rem !important;
-    background: #f8fafc !important;
-    border-radius: 10px !important;
-    border-left: 3px solid #667eea !important;
-    font-style: italic !important;
-    color: #64748b !important;
-    font-size: 0.9rem !important;
-    line-height: 1.6 !important;
-}
-
-/* Highlights */
-.highlights {
-    padding: 0 1.5rem !important;
-    margin: 0.5rem 0 !important;
-}
-
-.highlight-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    color: #475569;
-    margin: 0.3rem 0;
-}
-
-/* Website Link */
-.website-link {
-    padding: 0 1.5rem !important;
-    margin: 0.75rem 0 !important;
-}
-
-.website-link a {
-    color: #667eea !important;
-    text-decoration: none !important;
-    font-weight: 600 !important;
-    font-size: 0.9rem !important;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    transition: color 0.2s ease !important;
-}
-
-.website-link a:hover {
-    color: #764ba2 !important;
-    text-decoration: underline !important;
-}
-
-/* Action Buttons */
+/* Actions */
 .actions-bar {
     display: flex;
     gap: 0.75rem;
     padding: 1rem 1.5rem 1.5rem 1.5rem !important;
     border-top: 1px solid #f1f5f9 !important;
     margin-top: 1rem !important;
-    align-items: center;
 }
 
 .action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
     padding: 0.5rem 1rem;
     border-radius: 8px;
     font-size: 0.85rem;
     font-weight: 600;
-    transition: all 0.2s ease;
     border: 1px solid #e2e8f0;
     background: white;
     color: #475569;
@@ -267,12 +124,6 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover [
     flex: 1;
 }
 
-.action-btn.primary:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
 /* Google Badge */
 .google-badge {
     display: inline-flex;
@@ -285,176 +136,28 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover [
     font-size: 0.8rem;
     font-weight: 700;
     margin: 0.5rem 0;
-    box-shadow: 0 2px 8px rgba(66, 133, 244, 0.25);
 }
 
 /* Sidebar */
 section[data-testid="stSidebar"] {
     background: white !important;
     border-right: 1px solid #e2e8f0 !important;
-    padding: 1.5rem !important;
 }
 
-section[data-testid="stSidebar"] h2 {
-    font-size: 1.1rem !important;
-    font-weight: 700 !important;
-    color: #1a1a2e !important;
-    margin-bottom: 1rem !important;
-    padding-bottom: 0.5rem !important;
-    border-bottom: 2px solid #e2e8f0 !important;
-}
-
-/* Sidebar Inputs */
-[data-testid="stTextInput"] input,
-[data-testid="stSelectbox"] select,
-[data-testid="stMultiselect"] select {
-    border-radius: 10px !important;
-    border: 1px solid #e2e8f0 !important;
-    padding: 0.6rem 0.8rem !important;
-    font-size: 0.9rem !important;
-    transition: all 0.2s ease !important;
-}
-
-[data-testid="stTextInput"] input:focus,
-[data-testid="stSelectbox"] select:focus,
-[data-testid="stMultiselect"] select:focus {
-    border-color: #667eea !important;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-}
-
-/* Favorites Section */
-.favorites-section {
-    margin-top: 1.5rem !important;
-    padding-top: 1.5rem !important;
-    border-top: 1px solid #e2e8f0 !important;
-}
-
-.favorite-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background: #f8fafc;
-    border-radius: 8px;
-    margin: 0.4rem 0;
-    font-size: 0.85rem;
-    color: #475569;
-}
-
-/* Chat Section */
-.chat-section {
-    margin-top: 3rem !important;
-    padding-top: 2rem !important;
-    border-top: 2px solid #e2e8f0 !important;
-}
-
+/* Chat */
 [data-testid="stChatMessage"] {
     border-radius: 16px !important;
     padding: 1.25rem !important;
     margin: 1rem 0 !important;
     background: white !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
-    border: 1px solid #e2e8f0 !important;
 }
 
-[data-testid="stChatMessage"]:nth-child(odd) {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
-}
-
-/* Map */
-.map-container {
-    border-radius: 16px !important;
-    overflow: hidden !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
-    border: 1px solid #e2e8f0 !important;
-}
-
-/* Divider */
-[data-testid="stHorizontalLine"] {
-    border: none !important;
-    height: 1px !important;
-    background: linear-gradient(90deg, transparent, #e2e8f0, transparent) !important;
-    margin: 2rem 0 !important;
-}
-
-/* Success/Info Alerts */
-[data-testid="stSuccess"] {
-    background: #f0fdf4 !important;
-    color: #166534 !important;
-    border: 1px solid #bbf7d0 !important;
-    border-radius: 10px !important;
-}
-
-[data-testid="stInfo"] {
-    background: #eff6ff !important;
-    color: #1e40af !important;
-    border: 1px solid #bfdbfe !important;
-    border-radius: 10px !important;
-}
-
-/* Mobile Optimization */
+/* Mobile */
 @media (max-width: 768px) {
-    .main .block-container {
-        padding: 1rem !important;
-    }
-    
-    .main h1 {
-        font-size: 2rem !important;
-    }
-    
-    .stats-bar {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    [data-testid="stImage"] img {
-        height: 180px !important;
-    }
-    
-    .actions-bar {
-        flex-wrap: wrap;
-    }
-    
-    .action-btn {
-        flex: 1;
-        min-width: calc(50% - 0.5rem);
-    }
-}
-
-/* Animations */
-@keyframes slideIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(20px); 
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    }
-}
-
-div[data-testid="stVerticalBlock"] > div {
-    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+    .main .block-container { padding: 1rem !important; }
+    .main h1 { font-size: 2rem !important; }
+    [data-testid="stImage"] img { height: 180px !important; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -524,7 +227,19 @@ def get_google_places_data(restaurant_name, area):
 def get_cached_google_data(restaurant_name, area):
     return get_google_places_data(restaurant_name, area)
 
-# Premium Hero Section
+# Load data FIRST
+@st.cache_data(ttl=300)
+def load_osaka_data():
+    try:
+        with open("osaka_restaurants.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        st.error(f"Error loading data: {e}")
+        return []
+
+osaka_data = load_osaka_data()
+
+# NOW display header with loaded data
 st.markdown("""
 <div style="
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -552,7 +267,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Stats Bar
+# Stats Bar - NOW osaka_data is defined
 col1, col2, col3 = st.columns(3)
 with col1:
     st.markdown(f"""
@@ -568,6 +283,8 @@ with col1:
         <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; margin-top: 0.25rem;">Restaurants</div>
     </div>
     """, unsafe_allow_html=True)
+
+all_areas = sorted(list(set(r.get('area', 'Unknown') for r in osaka_data)))
 with col2:
     st.markdown(f"""
     <div style="
@@ -582,8 +299,9 @@ with col2:
         <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; margin-top: 0.25rem;">Districts</div>
     </div>
     """, unsafe_allow_html=True)
+
 with col3:
-    st.markdown(f"""
+    st.markdown("""
     <div style="
         text-align: center;
         padding: 1.5rem;
@@ -597,18 +315,6 @@ with col3:
     </div>
     """, unsafe_allow_html=True)
 
-# Load data
-@st.cache_data(ttl=300)
-def load_osaka_data():
-    try:
-        with open("osaka_restaurants.json", "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as e:
-        st.error(f"Error loading data: {e}")
-        return []
-
-osaka_data = load_osaka_data()
-all_areas = sorted(list(set(r.get('area', 'Unknown') for r in osaka_data)))
 all_categories = sorted(list(set(r.get('category', 'Unknown') for r in osaka_data)))
 all_prices = sorted(list(set(r.get('price_range', 'Unknown') for r in osaka_data)))
 
@@ -642,22 +348,8 @@ st.sidebar.header("⭐ My Favorites")
 if st.session_state.favorites:
     st.sidebar.success(f"{len(st.session_state.favorites)} saved")
     for fav_name in st.session_state.favorites[:5]:
-        st.sidebar.markdown(f"""
-        <div style="
-            padding: 0.5rem 0.75rem;
-            background: #f8fafc;
-            border-radius: 8px;
-            margin: 0.4rem 0;
-            font-size: 0.85rem;
-            color: #475569;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        ">
-            ❤️ {fav_name}
-        </div>
-        """, unsafe_allow_html=True)
-    if st.sidebar.button("Clear Favorites", key="clear_fav", use_container_width=True):
+        st.sidebar.markdown(f"• {fav_name}")
+    if st.sidebar.button("Clear Favorites", key="clear_fav"):
         st.session_state.favorites = []
         st.rerun()
 else:
@@ -699,19 +391,16 @@ if show_map and filtered_data:
         popup_html = f"""
         <div style="width: 220px; padding: 8px; font-family: Inter, sans-serif;">
             <b style="font-size: 14px; color: #1a1a2e;">{restaurant.get('name', 'N/A')}</b><br>
-            <span style="color: #64748b; font-size: 12px;">🍴 {restaurant.get('category', 'N/A')} • 💰 {restaurant.get('price_range', 'N/A')}</span><br>
+            <span style="color: #64748b; font-size: 12px;">🍴 {restaurant.get('category', 'N/A')}</span><br>
             <span style="color: #475569; font-size: 12px;">📞 {restaurant.get('phone', 'N/A')}</span>
         </div>
         """
         folium.Marker(coords, popup=folium.Popup(popup_html, max_width=300), tooltip=restaurant.get('name')).add_to(m)
-    
-    st.markdown('<div class="map-container">', unsafe_allow_html=True)
     st_folium(m, width=700, height=500, use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # Display restaurants
 if page_data:
-    st.subheader(f"️ Restaurants (Page {page})")
+    st.subheader(f"🍽️ Restaurants (Page {page})")
     cols = st.columns(3)
     for idx, restaurant in enumerate(page_data):
         with cols[idx % 3]:
@@ -726,7 +415,7 @@ if page_data:
                 else:
                     st.image("https://loremflickr.com/400/300/japanese?lock=9999", use_container_width=True)
                 
-                # Info with proper structure
+                # Info
                 st.markdown(f"### {restaurant.get('name')}")
                 
                 # Tags
@@ -739,41 +428,35 @@ if page_data:
                 """, unsafe_allow_html=True)
                 
                 # Details
-                st.markdown('<div class="details-section">', unsafe_allow_html=True)
                 if restaurant.get('address'):
                     st.markdown(f"📮 {restaurant.get('address')}")
                 if restaurant.get('phone'):
                     st.markdown(f"📞 {restaurant.get('phone')}")
                 if restaurant.get('hours'):
                     st.markdown(f"🕐 {restaurant.get('hours')} (Closed: {restaurant.get('closed', 'None')})")
-                st.markdown('</div>', unsafe_allow_html=True)
                 
-                # Description
+                st.markdown("---")
                 if restaurant.get('description'):
-                    st.markdown(f'<div class="description-box">{restaurant.get("description")}</div>', unsafe_allow_html=True)
+                    st.markdown(f"*{restaurant.get('description')}*")
                 
-                # Highlights
                 highlights = restaurant.get('highlights', [])
-                if isinstance(highlights, list) and highlights:
-                    st.markdown('<div class="highlights">', unsafe_allow_html=True)
+                if isinstance(highlights, list):
                     for h in highlights[:2]:
-                        st.markdown(f'<div class="highlight-item">⭐ {h}</div>', unsafe_allow_html=True)
-                    st.markdown('</div>', unsafe_allow_html=True)
+                        st.markdown(f"⭐ {h}")
                 
                 # Website
                 website = restaurant.get('website', '')
                 if website and website.startswith('http'):
-                    st.markdown(f'<div class="website-link"><a href="{website}" target="_blank"> Visit Website →</a></div>', unsafe_allow_html=True)
+                    st.markdown(f"[🌐 Website]({website})")
                 
-                # Action Buttons
-                st.markdown('<div class="actions-bar">', unsafe_allow_html=True)
-                
-                col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
+                # Actions
+                st.markdown("---")
+                col1, col2, col3 = st.columns(3)
                 rest_name = restaurant.get('name', '')
                 
                 with col1:
                     is_fav = rest_name in st.session_state.favorites
-                    if st.button("❤️" if is_fav else "", key=f"fav_{idx}", help="Favorite"):
+                    if st.button("❤️" if is_fav else "🤍", key=f"fav_{idx}"):
                         if is_fav:
                             st.session_state.favorites.remove(rest_name)
                         else:
@@ -781,20 +464,13 @@ if page_data:
                         st.rerun()
                 
                 with col2:
-                    if st.button("📤", key=f"share_{idx}", help="Share"):
+                    if st.button("📤", key=f"share_{idx}"):
                         st.code(f"{rest_name}\n{restaurant.get('address')}\n{restaurant.get('phone')}")
                 
                 with col3:
-                    if st.button("", key=f"report_{idx}", help="Report"):
+                    if st.button("🚩", key=f"report_{idx}"):
                         st.session_state[f"show_report_{idx}"] = not st.session_state.get(f"show_report_{idx}", False)
                         st.rerun()
-                
-                with col4:
-                    if st.button("🔍 Google Info", key=f"google_{idx}", help="Live data"):
-                        st.session_state[f"show_google_{idx}"] = not st.session_state.get(f"show_google_{idx}", False)
-                        st.rerun()
-                
-                st.markdown('</div>', unsafe_allow_html=True)
                 
                 # Report form
                 if st.session_state.get(f"show_report_{idx}"):
@@ -815,21 +491,21 @@ if page_data:
                                 st.rerun()
                 
                 # Google Info
-                if st.session_state.get(f"show_google_{idx}"):
-                    with st.spinner("Loading live data..."):
+                if st.button("🔍 Show Live Google Info", key=f"google_{idx}", type="secondary", use_container_width=True):
+                    with st.spinner("Loading..."):
                         gdata = get_cached_google_data(rest_name, restaurant.get('area'))
                         if gdata:
                             if gdata.get('rating'):
-                                st.markdown(f'<div class="google-badge">⭐ {gdata["rating"]}/5 ({gdata["total_ratings"]} reviews)</div>', unsafe_allow_html=True)
+                                st.markdown(f"<div class='google-badge'>⭐ {gdata['rating']}/5 ({gdata['total_ratings']} reviews)</div>", unsafe_allow_html=True)
                             st.markdown("🟢 Open Now" if gdata.get('open_now') else "🔴 Closed")
                             if gdata.get('photo_url'):
                                 st.image(gdata['photo_url'], use_container_width=True)
                         else:
-                            st.warning("No live data found")
+                            st.warning("No data found")
                 
                 st.divider()
 
-# AI Chat Section
+# AI Chat
 st.markdown("---")
 st.subheader("💬 Ask AI for Recommendations")
 
@@ -850,7 +526,7 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-if prompt := st.chat_input("Ask about Osaka restaurants, events, or tips..."):
+if prompt := st.chat_input("Ask about Osaka restaurants..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
