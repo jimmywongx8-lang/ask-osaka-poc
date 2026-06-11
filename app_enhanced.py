@@ -4,9 +4,16 @@ import os
 from groq import Groq
 import folium
 from streamlit_folium import st_folium
-import random
+import requests
+import time
+import csv
+from datetime import datetime
 
-# Page config - REMOVED layout="wide" for better mobile scaling
+# Initialize session state for favorites
+if 'favorites' not in st.session_state:
+    st.session_state.favorites = []
+
+# Page config - Mobile-optimized
 st.set_page_config(page_title="Ask Osaka AI Concierge", page_icon="🏯")
 
 # Mobile-responsive CSS
@@ -57,13 +64,109 @@ st.markdown("""
         padding: 0 0.5rem;
     }
 }
+
+/* Google badge styling */
+.google-badge {
+    background: linear-gradient(135deg, #4285F4, #34A853, #FBBC05, #EA4335);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: inline-block;
+    margin: 5px 0;
+}
 </style>
 """, unsafe_allow_html=True)
 
+# Function to save feedback
+def save_feedback(restaurant_name, issue_type, description):
+    """Save user feedback to CSV"""
+    file_exists = os.path.isfile('user_feedback.csv')
+    with open('user_feedback.csv', 'a', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=['timestamp', 'restaurant', 'issue_type', 'description'])
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow({
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'restaurant': restaurant_name,
+            'issue_type': issue_type,
+            'description': description
+        })
+
+# Google Places API Functions
+def get_google_places_data(restaurant_name, area):
+    """Fetch live data from Google Places API"""
+    
+    GOOGLE_API_KEY = st.secrets.get("GOOGLE_PLACES_API_KEY", os.getenv("GOOGLE_PLACES_API_KEY", ""))
+    
+    if not GOOGLE_API_KEY:
+        return None
+    
+    try:
+        # Search for the place
+        search_query = f"{restaurant_name} {area} Osaka Japan"
+        search_url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
+        search_params = {
+            "query": search_query,
+            "key": GOOGLE_API_KEY,
+            "language": "en"
+        }
+        
+        search_response = requests.get(search_url, params=search_params, timeout=5).json()
+        
+        if not search_response.get("results"):
+            return None
+        
+        place = search_response["results"][0]
+        place_id = place.get("place_id")
+        
+        # Get detailed info
+        details_url = "https://maps.googleapis.com/maps/api/place/details/json"
+        details_params = {
+            "place_id": place_id,
+            "fields": "rating,user_ratings_total,opening_hours,current_opening_hours,photos,website,international_phone_number,formatted_address,price_level",
+            "key": GOOGLE_API_KEY
+        }
+        
+        details_response = requests.get(details_url, params=details_params, timeout=5).json()
+        
+        if details_response.get("result"):
+            result = details_response["result"]
+            
+            # Get photo URL if available
+            photo_url = None
+            if result.get("photos"):
+                photo_reference = result["photos"][0]["photo_reference"]
+                photo_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference={photo_reference}&key={GOOGLE_API_KEY}"
+            
+            return {
+                "rating": result.get("rating"),
+                "total_ratings": result.get("user_ratings_total", 0),
+                "open_now": result.get("opening_hours", {}).get("open_now", False),
+                "website": result.get("website", ""),
+                "phone": result.get("international_phone_number", ""),
+                "address": result.get("formatted_address", ""),
+                "price_level": result.get("price_level", 0),
+                "photo_url": photo_url
+            }
+    
+    except Exception as e:
+        print(f"Google Places API Error: {e}")
+    
+    return None
+
+# Cache Google Places data
+@st.cache_data(ttl=3600)  # Cache for 1 hour
+def get_cached_google_data(restaurant_name, area):
+    """Cached version of Google Places lookup"""
+    return get_google_places_data(restaurant_name, area)
+
+# App Header
 st.title("🏯 Ask Osaka")
 st.caption("Your AI local guide. Ask about food, events, transit, or hidden gems.")
 
-# Load data with cache
+# Load restaurant data
 @st.cache_data(ttl=300)
 def load_osaka_data():
     try:
@@ -104,6 +207,28 @@ def filter_data(data):
 filtered_data = filter_data(osaka_data)
 st.sidebar.success(f"Showing {len(filtered_data)} of {len(osaka_data)} restaurants")
 
+# Sidebar - Favorites Section
+st.sidebar.markdown("---")
+st.sidebar.header("⭐ My Favorites")
+
+if st.session_state.favorites:
+    st.sidebar.success(f"{len(st.session_state.favorites)} saved")
+    
+    # Show favorite restaurant names
+    for fav_name in st.session_state.favorites[:5]:  # Show first 5
+        st.sidebar.markdown(f"• {fav_name}")
+    
+    if len(st.session_state.favorites) > 5:
+        st.sidebar.markdown(f"...and {len(st.session_state.favorites) - 5} more")
+    
+    if st.sidebar.button("Clear Favorites"):
+        st.session_state.favorites = []
+        st.rerun()
+else:
+    st.sidebar.info("Click ❤️ on restaurants to save them")
+
+st.sidebar.markdown("---")
+
 # Pagination
 items_per_page = 12
 page = st.sidebar.number_input("Page", min_value=1, max_value=max(1, (len(filtered_data) + items_per_page - 1) // items_per_page), value=1)
@@ -136,7 +261,6 @@ if show_map and filtered_data:
         area = restaurant.get('area', 'Dotonbori')
         coords = area_coords.get(area, [34.6937, 135.5023])
         
-        # Enhanced popup with contact info
         popup_html = f"""
         <div style="width: 220px; padding: 8px; font-family: Arial;">
             <b style="font-size: 14px;">{restaurant.get('name', 'N/A')}</b><br>
@@ -163,7 +287,7 @@ if page_data:
     for idx, restaurant in enumerate(page_data):
         with cols[idx % 3]:
             with st.container():
-                # Display image with error handling - MOBILE OPTIMIZED
+                # Display image with error handling
                 image_url = restaurant.get('image_url', '')
                 
                 if image_url:
@@ -200,14 +324,103 @@ if page_data:
                 else:
                     st.markdown(f"⭐ {highlights}")
                 
-                # Website link - only show if it's a real website
+                # Website link
                 website = restaurant.get('website', '')
                 if website and website.startswith('http'):
                     st.markdown(f"[🌐 Website]({website})")
                 
+                # Action Buttons Row
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    # Favorite Button
+                    rest_name = restaurant.get('name', '')
+                    is_favorite = rest_name in st.session_state.favorites
+                    
+                    if st.button("❤️" if is_favorite else "🤍", 
+                                key=f"fav_{idx}",
+                                help="Save to favorites"):
+                        if is_favorite:
+                            st.session_state.favorites.remove(rest_name)
+                            st.toast(f"Removed {rest_name} from favorites")
+                        else:
+                            st.session_state.favorites.append(rest_name)
+                            st.toast(f"Saved {rest_name} to favorites!")
+                        st.rerun()
+                
+                with col2:
+                    # Share Button
+                    if st.button("📤", key=f"share_{idx}", help="Share restaurant"):
+                        share_text = f"Check out {rest_name} in {restaurant.get('area', 'Osaka')}!\n{restaurant.get('category')} • {restaurant.get('price_range')}\n📍 {restaurant.get('address', '')}\n📞 {restaurant.get('phone', '')}"
+                        st.code(share_text, language=None)
+                        st.success("Copy the text above to share!")
+                
+                with col3:
+                    # Report Issue Button
+                    if st.button("🚩", key=f"report_{idx}", help="Report incorrect info"):
+                        st.session_state[f"show_report_{idx}"] = True
+                
+                # Report Form (shows when triggered)
+                if st.session_state.get(f"show_report_{idx}"):
+                    with st.form(f"report_form_{idx}"):
+                        st.markdown("**Report Issue for:** " + rest_name)
+                        issue_type = st.selectbox("What's wrong?", 
+                                                  ["Wrong hours", "Wrong phone", "Wrong address", 
+                                                   "Restaurant closed", "Wrong website", "Other"])
+                        description = st.text_area("Details (optional)")
+                        
+                        col_a, col_b = st.columns(2)
+                        with col_a:
+                            submitted = st.form_submit_button("Submit")
+                        with col_b:
+                            cancel = st.form_submit_button("Cancel")
+                        
+                        if submitted:
+                            save_feedback(rest_name, issue_type, description)
+                            st.success("✅ Thanks for the feedback!")
+                            st.session_state[f"show_report_{idx}"] = False
+                            st.rerun()
+                        elif cancel:
+                            st.session_state[f"show_report_{idx}"] = False
+                            st.rerun()
+                
+                # Google Places Live Data Button
+                if st.button("🔍 Google Info", key=f"google_{idx}", type="secondary", use_container_width=True):
+                    with st.spinner("Fetching live data..."):
+                        google_data = get_cached_google_data(restaurant.get('name'), restaurant.get('area'))
+                        
+                        if google_data:
+                            st.success("✅ Live from Google!")
+                            
+                            if google_data.get('rating'):
+                                stars = "⭐" * int(google_data['rating'])
+                                st.markdown(f"<div class='google-badge'>Google: {stars} {google_data['rating']}/5 ({google_data['total_ratings']} reviews)</div>", unsafe_allow_html=True)
+                            
+                            if google_data.get('open_now') is not None:
+                                status = "🟢 Open Now" if google_data['open_now'] else "🔴 Closed"
+                                st.markdown(status)
+                            
+                            if google_data.get('photo_url'):
+                                st.image(google_data['photo_url'], caption="Latest from Google", use_container_width=True)
+                            
+                            if google_data.get('website'):
+                                st.markdown(f"[🔗 Official Website]({google_data['website']})")
+                            
+                            if google_data.get('phone'):
+                                st.markdown(f"📞 {google_data['phone']}")
+                            
+                            if google_data.get('address'):
+                                st.markdown(f"📍 {google_data['address']}")
+                            
+                            if google_data.get('price_level'):
+                                price_symbols = "💰" * google_data['price_level']
+                                st.markdown(f"Price: {price_symbols}")
+                        else:
+                            st.warning("⚠️ No Google data found")
+                
                 st.divider()
 
-# AI Chat
+# AI Chat Section
 st.divider()
 st.subheader("💬 Ask for Recommendations")
 
@@ -217,24 +430,30 @@ context_text = "\n\n".join([
     for r in context_items
 ])
 
-SYSTEM_PROMPT = f"""You are a friendly Osaka local guide. Use ONLY these restaurants for recommendations:
+SYSTEM_PROMPT = f"""You are a friendly Osaka local guide with access to verified restaurant data.
+
+Use ONLY these restaurants for recommendations:
 
 {context_text}
 
+When recommending, mention:
+- Restaurant name and location
+- Price range
+- Special features or highlights
+- Practical tips (hours, reservations, etc.)
+
 If the user asks about something not in this list, politely say you only have information on the provided restaurants.
-Keep responses concise. Include practical tips. Use Osaka dialect occasionally (Maido!, Okini!).
+Keep responses concise and helpful. Use Osaka dialect occasionally (Maido!, Okini!).
 """
 
-# API Key - CORRECTED INDENTATION
+# API Keys
 GROQ_API_KEY = st.secrets.get("GROQ_API_KEY", os.getenv("GROQ_API_KEY", ""))
 
 if not GROQ_API_KEY:
-    # Only show input field if running locally without env var
-    if not os.getenv("GROQ_API_KEY"):
-        GROQ_API_KEY = st.text_input("Enter your Groq API Key", type="password", key="groq_key_input")
-        if not GROQ_API_KEY:
-            st.warning("⚠️ Please enter your Groq API Key to use the AI concierge")
-            st.stop()
+    GROQ_API_KEY = st.text_input("Enter your Groq API Key", type="password", key="groq_key_input")
+    if not GROQ_API_KEY:
+        st.warning("⚠️ Please enter your Groq API Key to use the AI concierge")
+        st.stop()
 
 groq_client = Groq(api_key=GROQ_API_KEY)
 
@@ -270,3 +489,12 @@ if prompt := st.chat_input("Ask about Osaka restaurants, events, transit, or tip
 
 if len(osaka_data) >= 50:
     st.sidebar.success(f"✅ Loaded {len(osaka_data)} Osaka items")
+
+# Footer
+st.markdown("---")
+st.markdown("""
+<div style="text-align: center; color: #666; font-size: 0.9rem;">
+    <b>Ask Osaka</b> - Your AI-powered Osaka restaurant guide<br>
+    🍜 900+ verified restaurants • 🗺️ Interactive maps • 💬 AI recommendations
+</div>
+""", unsafe_allow_html=True)
