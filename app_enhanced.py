@@ -33,7 +33,6 @@ st.markdown("""
     background: linear-gradient(180deg, #fafbfc 0%, #f0f2f5 100%) !important;
 }
 
-/* Header Styling */
 .main h1 {
     font-size: 3rem !important;
     font-weight: 800 !important;
@@ -48,7 +47,6 @@ st.markdown("""
     color: #64748b !important;
 }
 
-/* Restaurant Cards */
 div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]) {
     background: white !important;
     border-radius: 16px !important;
@@ -63,7 +61,6 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover {
     box-shadow: 0 12px 40px rgba(0,0,0,0.12) !important;
 }
 
-/* Center and Style Images */
 [data-testid="stImage"] {
     width: 100% !important;
     display: flex !important;
@@ -78,7 +75,6 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover {
     display: block !important;
 }
 
-/* Tags */
 .tags-row {
     display: flex;
     flex-wrap: wrap;
@@ -100,7 +96,6 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover {
 .tag-cuisine { background: #f3e8ff; color: #7c3aed; }
 .tag-price { background: #fef3c7; color: #b45309; }
 
-/* Action Buttons Area */
 .actions-bar {
     display: flex;
     gap: 0.75rem;
@@ -111,7 +106,6 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover {
     justify-content: space-between;
 }
 
-/* Button 1: Favorite (Pink/Red) */
 .actions-bar .stButton:nth-of-type(1) button {
     background-color: #ffeff2 !important;
     color: #e0245e !important;
@@ -131,7 +125,6 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover {
     border-color: #e0245e !important;
 }
 
-/* Button 2: Share (Blue) */
 .actions-bar .stButton:nth-of-type(2) button {
     background-color: #eff6ff !important;
     color: #2563eb !important;
@@ -151,7 +144,6 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover {
     border-color: #2563eb !important;
 }
 
-/* Button 3: Report (Orange) */
 .actions-bar .stButton:nth-of-type(3) button {
     background-color: #fff7ed !important;
     color: #ea580c !important;
@@ -171,7 +163,6 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover {
     border-color: #ea580c !important;
 }
 
-/* Button 4: Google Info (Gradient Purple) */
 .actions-bar .stButton:nth-of-type(4) button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     color: white !important;
@@ -190,7 +181,6 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover {
     box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4) !important;
 }
 
-/* Google Badge */
 .google-badge {
     display: inline-flex;
     align-items: center;
@@ -204,20 +194,9 @@ div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stImage"]):hover {
     margin: 0.5rem 0;
 }
 
-/* Sidebar */
 section[data-testid="stSidebar"] {
     background: white !important;
     border-right: 1px solid #e2e8f0 !important;
-}
-
-/* Chat Container */
-.chat-container {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    margin-top: 2rem;
-    border: 1px solid #e2e8f0;
 }
 
 [data-testid="stChatMessage"] {
@@ -229,7 +208,6 @@ section[data-testid="stSidebar"] {
     border: 1px solid #e2e8f0 !important;
 }
 
-/* Mobile */
 @media (max-width: 768px) {
     .main .block-container { padding: 1rem !important; }
     .main h1 { font-size: 2rem !important; }
@@ -239,7 +217,6 @@ section[data-testid="stSidebar"] {
 </style>
 """, unsafe_allow_html=True)
 
-# Function to save feedback
 def save_feedback(restaurant_name, issue_type, description):
     file_exists = os.path.isfile('user_feedback.csv')
     with open('user_feedback.csv', 'a', newline='', encoding='utf-8') as f:
@@ -253,24 +230,19 @@ def save_feedback(restaurant_name, issue_type, description):
             'description': description
         })
 
-# Google Places API
 def get_google_places_data(restaurant_name, area):
     GOOGLE_API_KEY = st.secrets.get("GOOGLE_PLACES_API_KEY", os.getenv("GOOGLE_PLACES_API_KEY", ""))
     if not GOOGLE_API_KEY:
         return None
-    
     try:
         search_query = f"{restaurant_name} {area} Osaka Japan"
         search_url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
         search_params = {"query": search_query, "key": GOOGLE_API_KEY, "language": "en"}
         search_response = requests.get(search_url, params=search_params, timeout=5).json()
-        
         if not search_response.get("results"):
             return None
-        
         place = search_response["results"][0]
         place_id = place.get("place_id")
-        
         details_url = "https://maps.googleapis.com/maps/api/place/details/json"
         details_params = {
             "place_id": place_id,
@@ -278,14 +250,12 @@ def get_google_places_data(restaurant_name, area):
             "key": GOOGLE_API_KEY
         }
         details_response = requests.get(details_url, params=details_params, timeout=5).json()
-        
         if details_response.get("result"):
             result = details_response["result"]
             photo_url = None
             if result.get("photos"):
                 photo_reference = result["photos"][0]["photo_reference"]
                 photo_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference={photo_reference}&key={GOOGLE_API_KEY}"
-            
             return {
                 "rating": result.get("rating"),
                 "total_ratings": result.get("user_ratings_total", 0),
@@ -304,7 +274,7 @@ def get_google_places_data(restaurant_name, area):
 def get_cached_google_data(restaurant_name, area):
     return get_google_places_data(restaurant_name, area)
 
-# Load data FIRST
+# Load data
 @st.cache_data(ttl=300)
 def load_osaka_data():
     try:
@@ -373,84 +343,7 @@ with col3:
 all_categories = sorted(list(set(r.get('category', 'Unknown') for r in osaka_data)))
 all_prices = sorted(list(set(r.get('price_range', 'Unknown') for r in osaka_data)))
 
-# === AI TRAVEL PLANNER SECTION (TOP) ===
-st.markdown("---")
-st.subheader("💬 AI Travel Planner")
-
-# Quick Action Buttons (Purple & Full Width)
-col_q1, col_q2, col_q3 = st.columns(3)
-with col_q1:
-    if st.button("📅 Plan a 3-Day Trip", use_container_width=True, type="primary"):
-        st.session_state.messages.append({"role": "user", "content": "Create a 3-day food itinerary for Osaka covering different areas each day."})
-        st.rerun()
-with col_q2:
-    if st.button("❤️ Best Date Night", use_container_width=True, type="primary"):
-        st.session_state.messages.append({"role": "user", "content": "Recommend the best romantic dinner spots for a date night."})
-        st.rerun()
-with col_q3:
-    if st.button("💰 Budget Eats", use_container_width=True, type="primary"):
-        st.session_state.messages.append({"role": "user", "content": "Find the best budget-friendly street food and cheap eats."})
-        st.rerun()
-
-st.markdown("---")
-
-# Context Preparation for AI
-context_items = filtered_data[:50] if filtered_data else osaka_data[:50]
-context_text = "\n".join([f"{r.get('name')}: {r.get('category')} in {r.get('area')}, {r.get('price_range')} - {r.get('description', '')}" for r in context_items])
-
-# ENHANCED SYSTEM PROMPT FOR ITINERARIES
-SYSTEM_PROMPT = f"""You are an expert Osaka travel planner and food guide.
-
-RESTAURANT DATABASE:
-{context_text}
-
-INSTRUCTIONS:
-1. Answer questions about specific restaurants using ONLY the provided data.
-2. If the user asks for an ITINERARY (e.g., "3 day trip", "plan for me", "schedule"), create a structured travel plan:
-   - Organize by Day > Meal (Lunch/Dinner).
-   - Group restaurants geographically to minimize travel time (e.g., Dotonbori + Shinsaibashi).
-   - Include the restaurant name, category, price range, and a "Why go here" tip based on the description.
-3. If the user asks for something not in the data, politely say you only know these specific spots.
-4. Keep the tone helpful and local (use phrases like "Maido", "Okini" occasionally).
-5. Format your response clearly using Markdown headers and lists.
-"""
-
-GROQ_API_KEY = st.secrets.get("GROQ_API_KEY", os.getenv("GROQ_API_KEY", ""))
-if not GROQ_API_KEY:
-    st.warning("⚠️ API Key not found in Secrets. Please add GROQ_API_KEY.")
-    GROQ_API_KEY = st.text_input("Groq API Key", type="password", key="groq_input_key")
-    if not GROQ_API_KEY:
-        st.stop()
-
-client = Groq(api_key=GROQ_API_KEY)
-
-# Display Chat History
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
-
-# Chat Input
-if prompt := st.chat_input("Or type your own request..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-    
-    with st.chat_message("assistant"):
-        with st.spinner("Planning your trip..."):
-            try:
-                response = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
-                    messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}],
-                    temperature=0.5,
-                    max_tokens=1000
-                )
-                reply = response.choices[0].message.content
-                st.markdown(reply)
-                st.session_state.messages.append({"role": "assistant", "content": reply})
-            except Exception as e:
-                st.error(f"Error: {e}")
-
-# Sidebar
+# Sidebar (Must come BEFORE AI section so filtered_data is defined)
 st.sidebar.header("Search & Filters")
 search_query = st.sidebar.text_input("Search restaurants...", placeholder="e.g., ramen, namba, cheap")
 
@@ -489,6 +382,78 @@ else:
 
 st.sidebar.markdown("---")
 
+# === AI TRAVEL PLANNER SECTION (NOW AFTER filtered_data IS DEFINED) ===
+st.markdown("---")
+st.subheader("💬 AI Travel Planner")
+
+col_q1, col_q2, col_q3 = st.columns(3)
+with col_q1:
+    if st.button("📅 Plan a 3-Day Trip", use_container_width=True, type="primary"):
+        st.session_state.messages.append({"role": "user", "content": "Create a 3-day food itinerary for Osaka covering different areas each day."})
+        st.rerun()
+with col_q2:
+    if st.button("❤️ Best Date Night", use_container_width=True, type="primary"):
+        st.session_state.messages.append({"role": "user", "content": "Recommend the best romantic dinner spots for a date night."})
+        st.rerun()
+with col_q3:
+    if st.button("💰 Budget Eats", use_container_width=True, type="primary"):
+        st.session_state.messages.append({"role": "user", "content": "Find the best budget-friendly street food and cheap eats."})
+        st.rerun()
+
+st.markdown("---")
+
+# Context Preparation
+context_items = filtered_data[:50] if filtered_data else osaka_data[:50]
+context_text = "\n".join([f"{r.get('name')}: {r.get('category')} in {r.get('area')}, {r.get('price_range')} - {r.get('description', '')}" for r in context_items])
+
+SYSTEM_PROMPT = f"""You are an expert Osaka travel planner and food guide.
+
+RESTAURANT DATABASE:
+{context_text}
+
+INSTRUCTIONS:
+1. Answer questions about specific restaurants using ONLY the provided data.
+2. If the user asks for an ITINERARY (e.g., "3 day trip", "plan for me", "schedule"), create a structured travel plan:
+   - Organize by Day > Meal (Lunch/Dinner).
+   - Group restaurants geographically to minimize travel time.
+   - Include the restaurant name, category, price range, and a "Why go here" tip.
+3. If the user asks for something not in the data, politely say you only know these specific spots.
+4. Keep the tone helpful and local (use phrases like "Maido", "Okini" occasionally).
+5. Format your response clearly using Markdown headers and lists.
+"""
+
+GROQ_API_KEY = st.secrets.get("GROQ_API_KEY", os.getenv("GROQ_API_KEY", ""))
+if not GROQ_API_KEY:
+    st.warning("⚠️ API Key not found in Secrets.")
+    GROQ_API_KEY = st.text_input("Groq API Key", type="password", key="groq_input_key")
+    if not GROQ_API_KEY:
+        st.stop()
+
+client = Groq(api_key=GROQ_API_KEY)
+
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+if prompt := st.chat_input("Or type your own request..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    with st.chat_message("assistant"):
+        with st.spinner("Planning your trip..."):
+            try:
+                response = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}],
+                    temperature=0.5,
+                    max_tokens=1000
+                )
+                reply = response.choices[0].message.content
+                st.markdown(reply)
+                st.session_state.messages.append({"role": "assistant", "content": reply})
+            except Exception as e:
+                st.error(f"Error: {e}")
+
 # Pagination
 items_per_page = 12
 page = st.sidebar.number_input("Page", min_value=1, max_value=max(1, (len(filtered_data) + items_per_page - 1) // items_per_page), value=1)
@@ -503,7 +468,6 @@ show_map = st.sidebar.checkbox("Show Restaurant Map", value=False)
 if show_map and filtered_data:
     st.subheader("📍 Restaurant Locations")
     m = folium.Map(location=[34.6937, 135.5023], zoom_start=13, tiles="CartoDB positron")
-    
     area_coords = {
         "Dotonbori": [34.6686, 135.5023], "Namba": [34.6660, 135.5000],
         "Umeda": [34.7024, 135.4959], "Shinsekai": [34.6520, 135.5060],
@@ -515,7 +479,6 @@ if show_map and filtered_data:
         "Kyobashi": [34.6980, 135.5350], "Imamiya": [34.6400, 135.5050],
         "Sumiyoshi": [34.6100, 135.4900], "Abeno": [34.6300, 135.5000]
     }
-    
     map_data = filtered_data[:50]
     for restaurant in map_data:
         area = restaurant.get('area', 'Dotonbori')
@@ -537,7 +500,6 @@ if page_data:
     for idx, restaurant in enumerate(page_data):
         with cols[idx % 3]:
             with st.container():
-                # Image
                 image_url = restaurant.get('image_url', '')
                 if image_url:
                     try:
@@ -547,10 +509,8 @@ if page_data:
                 else:
                     st.image("https://loremflickr.com/400/300/japanese?lock=9999", use_container_width=True)
                 
-                # Info
                 st.markdown(f"### {restaurant.get('name')}")
                 
-                # Tags
                 st.markdown(f"""
                 <div class="tags-row">
                     <span class="tag tag-location">📍 {restaurant.get('area', 'Unknown')}</span>
@@ -559,7 +519,6 @@ if page_data:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # Details
                 if restaurant.get('address'):
                     st.markdown(f"📮 {restaurant.get('address')}")
                 if restaurant.get('phone'):
@@ -576,12 +535,10 @@ if page_data:
                     for h in highlights[:2]:
                         st.markdown(f"⭐ {h}")
                 
-                # Website
                 website = restaurant.get('website', '')
                 if website and website.startswith('http'):
                     st.markdown(f"[🌐 Website]({website})")
                 
-                # Actions Bar
                 st.markdown('<div class="actions-bar">', unsafe_allow_html=True)
                 
                 col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
@@ -612,7 +569,6 @@ if page_data:
                 
                 st.markdown('</div>', unsafe_allow_html=True)
                 
-                # Report form
                 if st.session_state.get(f"show_report_{idx}"):
                     with st.form(f"report_form_{idx}"):
                         st.markdown("**Report Issue**")
@@ -630,14 +586,13 @@ if page_data:
                                 st.session_state[f"show_report_{idx}"] = False
                                 st.rerun()
                 
-                # Google Info
                 if st.session_state.get(f"show_google_{idx}"):
                     with st.spinner("Loading live data..."):
                         gdata = get_cached_google_data(rest_name, restaurant.get('area'))
                         if gdata:
                             if gdata.get('rating'):
                                 st.markdown(f'<div class="google-badge">⭐ {gdata["rating"]}/5 ({gdata["total_ratings"]} reviews)</div>', unsafe_allow_html=True)
-                            st.markdown(" Open Now" if gdata.get('open_now') else "🔴 Closed")
+                            st.markdown("🟢 Open Now" if gdata.get('open_now') else "🔴 Closed")
                             if gdata.get('photo_url'):
                                 st.image(gdata['photo_url'], use_container_width=True)
                         else:
