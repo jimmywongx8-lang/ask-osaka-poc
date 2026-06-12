@@ -16,9 +16,9 @@ if 'messages' not in st.session_state:
     st.session_state.messages = []
 
 # Page config
-st.set_page_config(page_title="Ask Osaka - AI Restaurant Guide", page_icon="🏯", layout="wide")
+st.set_page_config(page_title="Ask Osaka - AI Travel Planner", page_icon="🏯", layout="wide")
 
-# Premium Wix-like CSS with Colored Buttons
+# Premium Wix-like CSS
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -210,13 +210,23 @@ section[data-testid="stSidebar"] {
     border-right: 1px solid #e2e8f0 !important;
 }
 
-/* Chat */
+/* Chat Container */
+.chat-container {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    margin-top: 2rem;
+    border: 1px solid #e2e8f0;
+}
+
 [data-testid="stChatMessage"] {
     border-radius: 16px !important;
     padding: 1.25rem !important;
     margin: 1rem 0 !important;
-    background: white !important;
+    background: #f8fafc !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+    border: 1px solid #e2e8f0 !important;
 }
 
 /* Mobile */
@@ -330,7 +340,7 @@ st.markdown("""
         opacity: 0.9;
         margin: 0;
         font-weight: 400;
-    ">Your AI-powered guide to Osaka's finest dining experiences</p>
+    ">Your AI-powered travel planner & dining guide</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -364,7 +374,7 @@ all_categories = sorted(list(set(r.get('category', 'Unknown') for r in osaka_dat
 all_prices = sorted(list(set(r.get('price_range', 'Unknown') for r in osaka_data)))
 
 # Sidebar
-st.sidebar.header(" Search & Filters")
+st.sidebar.header("Search & Filters")
 search_query = st.sidebar.text_input("Search restaurants...", placeholder="e.g., ramen, namba, cheap")
 
 selected_areas = st.sidebar.multiselect("Area", all_areas, default=[])
@@ -436,7 +446,7 @@ if show_map and filtered_data:
         popup_html = f"""
         <div style="width: 220px; padding: 8px; font-family: Inter, sans-serif;">
             <b style="font-size: 14px; color: #1a1a2e;">{restaurant.get('name', 'N/A')}</b><br>
-            <span style="color: #64748b; font-size: 12px;"> {restaurant.get('category', 'N/A')}</span><br>
+            <span style="color: #64748b; font-size: 12px;">🍴 {restaurant.get('category', 'N/A')}</span><br>
             <span style="color: #475569; font-size: 12px;">📞 {restaurant.get('phone', 'N/A')}</span>
         </div>
         """
@@ -445,12 +455,12 @@ if show_map and filtered_data:
 
 # Display restaurants
 if page_data:
-    st.subheader(f"🍽️ Restaurants (Page {page})")
+    st.subheader(f"️ Restaurants (Page {page})")
     cols = st.columns(3)
     for idx, restaurant in enumerate(page_data):
         with cols[idx % 3]:
             with st.container():
-                # Image (Now Centered)
+                # Image
                 image_url = restaurant.get('image_url', '')
                 if image_url:
                     try:
@@ -476,9 +486,9 @@ if page_data:
                 if restaurant.get('address'):
                     st.markdown(f"📮 {restaurant.get('address')}")
                 if restaurant.get('phone'):
-                    st.markdown(f"📞 {restaurant.get('phone')}")
+                    st.markdown(f" {restaurant.get('phone')}")
                 if restaurant.get('hours'):
-                    st.markdown(f"🕐 {restaurant.get('hours')} (Closed: {restaurant.get('closed', 'None')})")
+                    st.markdown(f" {restaurant.get('hours')} (Closed: {restaurant.get('closed', 'None')})")
                 
                 st.markdown("---")
                 if restaurant.get('description'):
@@ -519,7 +529,7 @@ if page_data:
                         st.rerun()
                 
                 with col4:
-                    if st.button("🔍 Google Info", key=f"google_{idx}", help="Live data"):
+                    if st.button(" Google Info", key=f"google_{idx}", help="Live data"):
                         st.session_state[f"show_google_{idx}"] = not st.session_state.get(f"show_google_{idx}", False)
                         st.rerun()
                 
@@ -550,7 +560,7 @@ if page_data:
                         if gdata:
                             if gdata.get('rating'):
                                 st.markdown(f'<div class="google-badge">⭐ {gdata["rating"]}/5 ({gdata["total_ratings"]} reviews)</div>', unsafe_allow_html=True)
-                            st.markdown("🟢 Open Now" if gdata.get('open_now') else "🔴 Closed")
+                            st.markdown("🟢 Open Now" if gdata.get('open_now') else " Closed")
                             if gdata.get('photo_url'):
                                 st.image(gdata['photo_url'], use_container_width=True)
                         else:
@@ -558,14 +568,47 @@ if page_data:
                 
                 st.divider()
 
-# AI Chat Section
+# === AI CHAT SECTION (ENHANCED WITH ITINERARY BUILDER) ===
 st.markdown("---")
-st.subheader("💬 Ask AI for Recommendations")
+st.subheader("💬 AI Travel Planner")
 
-context_items = filtered_data[:20] if filtered_data else osaka_data[:20]
-context_text = "\n".join([f"{r.get('name')}: {r.get('category')} in {r.get('area')}, {r.get('price_range')}" for r in context_items])
+# Quick Actions for Itinerary Builder
+st.markdown('<div style="margin-bottom: 1rem;">', unsafe_allow_html=True)
+col_q1, col_q2, col_q3 = st.columns(3)
+with col_q1:
+    if st.button(" Plan a 3-Day Trip", type="secondary"):
+        st.session_state.messages.append({"role": "user", "content": "Create a 3-day food itinerary for Osaka covering different areas each day."})
+        st.rerun()
+with col_q2:
+    if st.button("❤️ Best Date Night", type="secondary"):
+        st.session_state.messages.append({"role": "user", "content": "Recommend the best romantic dinner spots for a date night."})
+        st.rerun()
+with col_q3:
+    if st.button("💰 Budget Eats", type="secondary"):
+        st.session_state.messages.append({"role": "user", "content": "Find the best budget-friendly street food and cheap eats."})
+        st.rerun()
+st.markdown('</div>', unsafe_allow_html=True)
 
-SYSTEM_PROMPT = f"""You are a friendly Osaka guide. Recommend from these restaurants:\n{context_text}\nBe helpful and concise."""
+# Context Preparation
+context_items = filtered_data[:50] if filtered_data else osaka_data[:50]
+context_text = "\n".join([f"{r.get('name')}: {r.get('category')} in {r.get('area')}, {r.get('price_range')} - {r.get('description', '')}" for r in context_items])
+
+# ENHANCED SYSTEM PROMPT FOR ITINERARIES
+SYSTEM_PROMPT = f"""You are an expert Osaka travel planner and food guide.
+
+RESTAURANT DATABASE:
+{context_text}
+
+INSTRUCTIONS:
+1. Answer questions about specific restaurants using ONLY the provided data.
+2. If the user asks for an ITINERARY (e.g., "3 day trip", "plan for me", "schedule"), create a structured travel plan:
+   - Organize by Day > Meal (Lunch/Dinner).
+   - Group restaurants geographically to minimize travel time (e.g., Dotonbori + Shinsaibashi).
+   - Include the restaurant name, category, price range, and a "Why go here" tip based on the description.
+3. If the user asks for something not in the data, politely say you only know these specific spots.
+4. Keep the tone helpful and local (use phrases like "Maido", "Okini" occasionally).
+5. Format your response clearly using Markdown headers and lists.
+"""
 
 GROQ_API_KEY = st.secrets.get("GROQ_API_KEY", os.getenv("GROQ_API_KEY", ""))
 if not GROQ_API_KEY:
@@ -575,22 +618,25 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
+# Display Chat History
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-if prompt := st.chat_input("Ask about Osaka restaurants, events, or tips..."):
+# Chat Input
+if prompt := st.chat_input("Ask for recommendations or 'Plan a 2-day trip'..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
+    
     with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
+        with st.spinner("Planning your trip..."):
             try:
                 response = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}],
-                    temperature=0.3,
-                    max_tokens=500
+                    temperature=0.5,  # Slightly higher for more creative itineraries
+                    max_tokens=1000   # Allow longer responses for plans
                 )
                 reply = response.choices[0].message.content
                 st.markdown(reply)
