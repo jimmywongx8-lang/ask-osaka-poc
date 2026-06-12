@@ -380,21 +380,19 @@ if st.session_state.favorites:
 else:
     st.sidebar.info("Click ❤️ to save favorites")
 
-# === AI QUICK ACTIONS IN SIDEBAR ===
+# === AI QUICK ACTIONS IN SIDEBAR (FIXED) ===
 st.sidebar.markdown("---")
 st.sidebar.header("✨ AI Quick Actions")
 
-if st.sidebar.button("📅 Plan 3-Day Trip", use_container_width=True, type="primary"):
-    st.session_state.messages.append({"role": "user", "content": "Create a 3-day food itinerary for Osaka covering different areas each day."})
-    st.rerun()
+# These buttons set a "pending prompt" that the main chat logic will catch
+if st.sidebar.button(" Plan 3-Day Trip", use_container_width=True, type="primary"):
+    st.session_state.pending_prompt = "Create a 3-day food itinerary for Osaka covering different areas each day."
 
 if st.sidebar.button("❤️ Best Date Night", use_container_width=True, type="primary"):
-    st.session_state.messages.append({"role": "user", "content": "Recommend the best romantic dinner spots for a date night."})
-    st.rerun()
+    st.session_state.pending_prompt = "Recommend the best romantic dinner spots for a date night."
 
 if st.sidebar.button("💰 Budget Eats", use_container_width=True, type="primary"):
-    st.session_state.messages.append({"role": "user", "content": "Find the best budget-friendly street food and cheap eats."})
-    st.rerun()
+    st.session_state.pending_prompt = "Find the best budget-friendly street food and cheap eats."
 
 st.sidebar.markdown("---")
 
@@ -427,18 +425,36 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# AI Chat Section (Simplified - just the chat input)
+# === CHAT LOGIC (FIXED TO HANDLE BUTTONS) ===
 st.markdown("---")
 st.subheader("💬 AI Travel Planner")
 
+# 1. Display Chat History
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-if prompt := st.chat_input("Or type your own request..."):
+# 2. Check for Input (Either from Text Box OR Sidebar Buttons)
+prompt = None
+
+# Check text input
+if prompt_input := st.chat_input("Or type your own request..."):
+    prompt = prompt_input
+# Check if a button set a pending prompt
+elif st.session_state.get("pending_prompt"):
+    prompt = st.session_state.pending_prompt
+    st.session_state.pop("pending_prompt", None) # Clear the pending prompt
+
+# 3. If we have a prompt, generate response
+if prompt:
+    # Add user message to history
     st.session_state.messages.append({"role": "user", "content": prompt})
+    
+    # Display user message immediately
     with st.chat_message("user"):
         st.markdown(prompt)
+    
+    # Generate AI Response
     with st.chat_message("assistant"):
         with st.spinner("Planning your trip..."):
             try:
@@ -495,7 +511,7 @@ if show_map and filtered_data:
 
 # Display restaurants
 if page_data:
-    st.subheader(f"🍽️ Restaurants (Page {page})")
+    st.subheader(f"️ Restaurants (Page {page})")
     cols = st.columns(3)
     for idx, restaurant in enumerate(page_data):
         with cols[idx % 3]:
@@ -537,7 +553,7 @@ if page_data:
                 
                 website = restaurant.get('website', '')
                 if website and website.startswith('http'):
-                    st.markdown(f"[🌐 Website]({website})")
+                    st.markdown(f"[ Website]({website})")
                 
                 st.markdown('<div class="actions-bar">', unsafe_allow_html=True)
                 
