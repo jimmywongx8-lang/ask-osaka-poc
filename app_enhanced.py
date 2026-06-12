@@ -334,7 +334,7 @@ st.markdown("""
         background: linear-gradient(135deg, #fff 0%, #e2e8f0 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-    ">🏯 Ask Osaka</h1>
+    "> Ask Osaka</h1>
     <p style="
         font-size: 1.2rem;
         opacity: 0.9;
@@ -412,13 +412,6 @@ else:
 
 st.sidebar.markdown("---")
 
-# Pagination
-items_per_page = 12
-page = st.sidebar.number_input("Page", min_value=1, max_value=max(1, (len(filtered_data) + items_per_page - 1) // items_per_page), value=1)
-start_idx = (page - 1) * items_per_page
-end_idx = start_idx + items_per_page
-page_data = filtered_data[start_idx:end_idx]
-
 # Map
 st.sidebar.header("🗺️ Map View")
 show_map = st.sidebar.checkbox("Show Restaurant Map", value=False)
@@ -446,129 +439,14 @@ if show_map and filtered_data:
         popup_html = f"""
         <div style="width: 220px; padding: 8px; font-family: Inter, sans-serif;">
             <b style="font-size: 14px; color: #1a1a2e;">{restaurant.get('name', 'N/A')}</b><br>
-            <span style="color: #64748b; font-size: 12px;">🍴 {restaurant.get('category', 'N/A')}</span><br>
+            <span style="color: #64748b; font-size: 12px;"> {restaurant.get('category', 'N/A')}</span><br>
             <span style="color: #475569; font-size: 12px;">📞 {restaurant.get('phone', 'N/A')}</span>
         </div>
         """
         folium.Marker(coords, popup=folium.Popup(popup_html, max_width=300), tooltip=restaurant.get('name')).add_to(m)
     st_folium(m, width=700, height=500, use_container_width=True)
 
-# Display restaurants
-if page_data:
-    st.subheader(f"️ Restaurants (Page {page})")
-    cols = st.columns(3)
-    for idx, restaurant in enumerate(page_data):
-        with cols[idx % 3]:
-            with st.container():
-                # Image
-                image_url = restaurant.get('image_url', '')
-                if image_url:
-                    try:
-                        st.image(image_url, use_container_width=True)
-                    except:
-                        st.image("https://loremflickr.com/400/300/japanese?lock=9999", use_container_width=True)
-                else:
-                    st.image("https://loremflickr.com/400/300/japanese?lock=9999", use_container_width=True)
-                
-                # Info
-                st.markdown(f"### {restaurant.get('name')}")
-                
-                # Tags
-                st.markdown(f"""
-                <div class="tags-row">
-                    <span class="tag tag-location">📍 {restaurant.get('area', 'Unknown')}</span>
-                    <span class="tag tag-cuisine">🍴 {restaurant.get('category', 'Unknown')}</span>
-                    <span class="tag tag-price">💰 {restaurant.get('price_range', 'N/A')}</span>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # Details
-                if restaurant.get('address'):
-                    st.markdown(f"📮 {restaurant.get('address')}")
-                if restaurant.get('phone'):
-                    st.markdown(f" {restaurant.get('phone')}")
-                if restaurant.get('hours'):
-                    st.markdown(f" {restaurant.get('hours')} (Closed: {restaurant.get('closed', 'None')})")
-                
-                st.markdown("---")
-                if restaurant.get('description'):
-                    st.markdown(f"*{restaurant.get('description')}*")
-                
-                highlights = restaurant.get('highlights', [])
-                if isinstance(highlights, list):
-                    for h in highlights[:2]:
-                        st.markdown(f"⭐ {h}")
-                
-                # Website
-                website = restaurant.get('website', '')
-                if website and website.startswith('http'):
-                    st.markdown(f"[🌐 Website]({website})")
-                
-                # Actions Bar
-                st.markdown('<div class="actions-bar">', unsafe_allow_html=True)
-                
-                col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
-                rest_name = restaurant.get('name', '')
-                
-                with col1:
-                    is_fav = rest_name in st.session_state.favorites
-                    if st.button("❤️" if is_fav else "🤍", key=f"fav_{idx}", help="Favorite"):
-                        if is_fav:
-                            st.session_state.favorites.remove(rest_name)
-                        else:
-                            st.session_state.favorites.append(rest_name)
-                        st.rerun()
-                
-                with col2:
-                    if st.button("📤", key=f"share_{idx}", help="Share"):
-                        st.code(f"{rest_name}\n{restaurant.get('address')}\n{restaurant.get('phone')}")
-                
-                with col3:
-                    if st.button("🚩", key=f"report_{idx}", help="Report"):
-                        st.session_state[f"show_report_{idx}"] = not st.session_state.get(f"show_report_{idx}", False)
-                        st.rerun()
-                
-                with col4:
-                    if st.button(" Google Info", key=f"google_{idx}", help="Live data"):
-                        st.session_state[f"show_google_{idx}"] = not st.session_state.get(f"show_google_{idx}", False)
-                        st.rerun()
-                
-                st.markdown('</div>', unsafe_allow_html=True)
-                
-                # Report form
-                if st.session_state.get(f"show_report_{idx}"):
-                    with st.form(f"report_form_{idx}"):
-                        st.markdown("**Report Issue**")
-                        issue = st.selectbox("What's wrong?", ["Wrong hours", "Wrong phone", "Closed", "Other"])
-                        desc = st.text_area("Details", placeholder="Optional")
-                        col_a, col_b = st.columns(2)
-                        with col_a:
-                            if st.form_submit_button("Submit"):
-                                save_feedback(rest_name, issue, desc)
-                                st.success("Thanks!")
-                                st.session_state[f"show_report_{idx}"] = False
-                                st.rerun()
-                        with col_b:
-                            if st.form_submit_button("Cancel"):
-                                st.session_state[f"show_report_{idx}"] = False
-                                st.rerun()
-                
-                # Google Info
-                if st.session_state.get(f"show_google_{idx}"):
-                    with st.spinner("Loading live data..."):
-                        gdata = get_cached_google_data(rest_name, restaurant.get('area'))
-                        if gdata:
-                            if gdata.get('rating'):
-                                st.markdown(f'<div class="google-badge">⭐ {gdata["rating"]}/5 ({gdata["total_ratings"]} reviews)</div>', unsafe_allow_html=True)
-                            st.markdown("🟢 Open Now" if gdata.get('open_now') else " Closed")
-                            if gdata.get('photo_url'):
-                                st.image(gdata['photo_url'], use_container_width=True)
-                        else:
-                            st.warning("No live data found")
-                
-                st.divider()
-
-# === AI CHAT SECTION (ENHANCED WITH ITINERARY BUILDER) ===
+# === AI CHAT SECTION (MOVED TO TOP) ===
 st.markdown("---")
 st.subheader("💬 AI Travel Planner")
 
@@ -576,7 +454,7 @@ st.subheader("💬 AI Travel Planner")
 st.markdown('<div style="margin-bottom: 1rem;">', unsafe_allow_html=True)
 col_q1, col_q2, col_q3 = st.columns(3)
 with col_q1:
-    if st.button(" Plan a 3-Day Trip", type="secondary"):
+    if st.button("📅 Plan a 3-Day Trip", type="secondary"):
         st.session_state.messages.append({"role": "user", "content": "Create a 3-day food itinerary for Osaka covering different areas each day."})
         st.rerun()
 with col_q2:
@@ -584,7 +462,7 @@ with col_q2:
         st.session_state.messages.append({"role": "user", "content": "Recommend the best romantic dinner spots for a date night."})
         st.rerun()
 with col_q3:
-    if st.button("💰 Budget Eats", type="secondary"):
+    if st.button(" Budget Eats", type="secondary"):
         st.session_state.messages.append({"role": "user", "content": "Find the best budget-friendly street food and cheap eats."})
         st.rerun()
 st.markdown('</div>', unsafe_allow_html=True)
@@ -635,8 +513,8 @@ if prompt := st.chat_input("Ask for recommendations or 'Plan a 2-day trip'..."):
                 response = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}],
-                    temperature=0.5,  # Slightly higher for more creative itineraries
-                    max_tokens=1000   # Allow longer responses for plans
+                    temperature=0.5,
+                    max_tokens=1000
                 )
                 reply = response.choices[0].message.content
                 st.markdown(reply)
@@ -645,3 +523,125 @@ if prompt := st.chat_input("Ask for recommendations or 'Plan a 2-day trip'..."):
                 st.error(f"Error: {e}")
 
 st.sidebar.success(f"✅ {len(osaka_data)} restaurants loaded")
+
+# Pagination
+items_per_page = 12
+page = st.sidebar.number_input("Page", min_value=1, max_value=max(1, (len(filtered_data) + items_per_page - 1) // items_per_page), value=1)
+start_idx = (page - 1) * items_per_page
+end_idx = start_idx + items_per_page
+page_data = filtered_data[start_idx:end_idx]
+
+# Display restaurants
+if page_data:
+    st.subheader(f"🍽️ Restaurants (Page {page})")
+    cols = st.columns(3)
+    for idx, restaurant in enumerate(page_data):
+        with cols[idx % 3]:
+            with st.container():
+                # Image
+                image_url = restaurant.get('image_url', '')
+                if image_url:
+                    try:
+                        st.image(image_url, use_container_width=True)
+                    except:
+                        st.image("https://loremflickr.com/400/300/japanese?lock=9999", use_container_width=True)
+                else:
+                    st.image("https://loremflickr.com/400/300/japanese?lock=9999", use_container_width=True)
+                
+                # Info
+                st.markdown(f"### {restaurant.get('name')}")
+                
+                # Tags
+                st.markdown(f"""
+                <div class="tags-row">
+                    <span class="tag tag-location">📍 {restaurant.get('area', 'Unknown')}</span>
+                    <span class="tag tag-cuisine">🍴 {restaurant.get('category', 'Unknown')}</span>
+                    <span class="tag tag-price">💰 {restaurant.get('price_range', 'N/A')}</span>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Details
+                if restaurant.get('address'):
+                    st.markdown(f"📮 {restaurant.get('address')}")
+                if restaurant.get('phone'):
+                    st.markdown(f"📞 {restaurant.get('phone')}")
+                if restaurant.get('hours'):
+                    st.markdown(f" {restaurant.get('hours')} (Closed: {restaurant.get('closed', 'None')})")
+                
+                st.markdown("---")
+                if restaurant.get('description'):
+                    st.markdown(f"*{restaurant.get('description')}*")
+                
+                highlights = restaurant.get('highlights', [])
+                if isinstance(highlights, list):
+                    for h in highlights[:2]:
+                        st.markdown(f"⭐ {h}")
+                
+                # Website
+                website = restaurant.get('website', '')
+                if website and website.startswith('http'):
+                    st.markdown(f"[🌐 Website]({website})")
+                
+                # Actions Bar
+                st.markdown('<div class="actions-bar">', unsafe_allow_html=True)
+                
+                col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
+                rest_name = restaurant.get('name', '')
+                
+                with col1:
+                    is_fav = rest_name in st.session_state.favorites
+                    if st.button("❤️" if is_fav else "🤍", key=f"fav_{idx}", help="Favorite"):
+                        if is_fav:
+                            st.session_state.favorites.remove(rest_name)
+                        else:
+                            st.session_state.favorites.append(rest_name)
+                        st.rerun()
+                
+                with col2:
+                    if st.button("📤", key=f"share_{idx}", help="Share"):
+                        st.code(f"{rest_name}\n{restaurant.get('address')}\n{restaurant.get('phone')}")
+                
+                with col3:
+                    if st.button("🚩", key=f"report_{idx}", help="Report"):
+                        st.session_state[f"show_report_{idx}"] = not st.session_state.get(f"show_report_{idx}", False)
+                        st.rerun()
+                
+                with col4:
+                    if st.button("🔍 Google Info", key=f"google_{idx}", help="Live data"):
+                        st.session_state[f"show_google_{idx}"] = not st.session_state.get(f"show_google_{idx}", False)
+                        st.rerun()
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+                
+                # Report form
+                if st.session_state.get(f"show_report_{idx}"):
+                    with st.form(f"report_form_{idx}"):
+                        st.markdown("**Report Issue**")
+                        issue = st.selectbox("What's wrong?", ["Wrong hours", "Wrong phone", "Closed", "Other"])
+                        desc = st.text_area("Details", placeholder="Optional")
+                        col_a, col_b = st.columns(2)
+                        with col_a:
+                            if st.form_submit_button("Submit"):
+                                save_feedback(rest_name, issue, desc)
+                                st.success("Thanks!")
+                                st.session_state[f"show_report_{idx}"] = False
+                                st.rerun()
+                        with col_b:
+                            if st.form_submit_button("Cancel"):
+                                st.session_state[f"show_report_{idx}"] = False
+                                st.rerun()
+                
+                # Google Info
+                if st.session_state.get(f"show_google_{idx}"):
+                    with st.spinner("Loading live data..."):
+                        gdata = get_cached_google_data(rest_name, restaurant.get('area'))
+                        if gdata:
+                            if gdata.get('rating'):
+                                st.markdown(f'<div class="google-badge">⭐ {gdata["rating"]}/5 ({gdata["total_ratings"]} reviews)</div>', unsafe_allow_html=True)
+                            st.markdown("🟢 Open Now" if gdata.get('open_now') else "🔴 Closed")
+                            if gdata.get('photo_url'):
+                                st.image(gdata['photo_url'], use_container_width=True)
+                        else:
+                            st.warning("No live data found")
+                
+                st.divider()
