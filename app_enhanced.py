@@ -343,7 +343,7 @@ with col3:
 all_categories = sorted(list(set(r.get('category', 'Unknown') for r in osaka_data)))
 all_prices = sorted(list(set(r.get('price_range', 'Unknown') for r in osaka_data)))
 
-# Sidebar (Must come BEFORE AI section so filtered_data is defined)
+# Sidebar
 st.sidebar.header("Search & Filters")
 search_query = st.sidebar.text_input("Search restaurants...", placeholder="e.g., ramen, namba, cheap")
 
@@ -380,27 +380,23 @@ if st.session_state.favorites:
 else:
     st.sidebar.info("Click ❤️ to save favorites")
 
+# === AI QUICK ACTIONS IN SIDEBAR ===
 st.sidebar.markdown("---")
+st.sidebar.header("✨ AI Quick Actions")
 
-# === AI TRAVEL PLANNER SECTION (NOW AFTER filtered_data IS DEFINED) ===
-st.markdown("---")
-st.subheader("💬 AI Travel Planner")
+if st.sidebar.button("📅 Plan 3-Day Trip", use_container_width=True, type="primary"):
+    st.session_state.messages.append({"role": "user", "content": "Create a 3-day food itinerary for Osaka covering different areas each day."})
+    st.rerun()
 
-col_q1, col_q2, col_q3 = st.columns(3)
-with col_q1:
-    if st.button("📅 Plan a 3-Day Trip", use_container_width=True, type="primary"):
-        st.session_state.messages.append({"role": "user", "content": "Create a 3-day food itinerary for Osaka covering different areas each day."})
-        st.rerun()
-with col_q2:
-    if st.button("❤️ Best Date Night", use_container_width=True, type="primary"):
-        st.session_state.messages.append({"role": "user", "content": "Recommend the best romantic dinner spots for a date night."})
-        st.rerun()
-with col_q3:
-    if st.button("💰 Budget Eats", use_container_width=True, type="primary"):
-        st.session_state.messages.append({"role": "user", "content": "Find the best budget-friendly street food and cheap eats."})
-        st.rerun()
+if st.sidebar.button("❤️ Best Date Night", use_container_width=True, type="primary"):
+    st.session_state.messages.append({"role": "user", "content": "Recommend the best romantic dinner spots for a date night."})
+    st.rerun()
 
-st.markdown("---")
+if st.sidebar.button("💰 Budget Eats", use_container_width=True, type="primary"):
+    st.session_state.messages.append({"role": "user", "content": "Find the best budget-friendly street food and cheap eats."})
+    st.rerun()
+
+st.sidebar.markdown("---")
 
 # Context Preparation
 context_items = filtered_data[:50] if filtered_data else osaka_data[:50]
@@ -430,6 +426,10 @@ if not GROQ_API_KEY:
         st.stop()
 
 client = Groq(api_key=GROQ_API_KEY)
+
+# AI Chat Section (Simplified - just the chat input)
+st.markdown("---")
+st.subheader("💬 AI Travel Planner")
 
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
