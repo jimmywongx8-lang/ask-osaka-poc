@@ -334,7 +334,7 @@ st.markdown("""
         background: linear-gradient(135deg, #fff 0%, #e2e8f0 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-    "> Ask Osaka</h1>
+    ">🏯 Ask Osaka</h1>
     <p style="
         font-size: 1.2rem;
         opacity: 0.9;
@@ -372,6 +372,83 @@ with col3:
 
 all_categories = sorted(list(set(r.get('category', 'Unknown') for r in osaka_data)))
 all_prices = sorted(list(set(r.get('price_range', 'Unknown') for r in osaka_data)))
+
+# === AI TRAVEL PLANNER SECTION (TOP) ===
+st.markdown("---")
+st.subheader("💬 AI Travel Planner")
+
+# Quick Action Buttons (Purple & Full Width)
+col_q1, col_q2, col_q3 = st.columns(3)
+with col_q1:
+    if st.button("📅 Plan a 3-Day Trip", use_container_width=True, type="primary"):
+        st.session_state.messages.append({"role": "user", "content": "Create a 3-day food itinerary for Osaka covering different areas each day."})
+        st.rerun()
+with col_q2:
+    if st.button("❤️ Best Date Night", use_container_width=True, type="primary"):
+        st.session_state.messages.append({"role": "user", "content": "Recommend the best romantic dinner spots for a date night."})
+        st.rerun()
+with col_q3:
+    if st.button("💰 Budget Eats", use_container_width=True, type="primary"):
+        st.session_state.messages.append({"role": "user", "content": "Find the best budget-friendly street food and cheap eats."})
+        st.rerun()
+
+st.markdown("---")
+
+# Context Preparation for AI
+context_items = filtered_data[:50] if filtered_data else osaka_data[:50]
+context_text = "\n".join([f"{r.get('name')}: {r.get('category')} in {r.get('area')}, {r.get('price_range')} - {r.get('description', '')}" for r in context_items])
+
+# ENHANCED SYSTEM PROMPT FOR ITINERARIES
+SYSTEM_PROMPT = f"""You are an expert Osaka travel planner and food guide.
+
+RESTAURANT DATABASE:
+{context_text}
+
+INSTRUCTIONS:
+1. Answer questions about specific restaurants using ONLY the provided data.
+2. If the user asks for an ITINERARY (e.g., "3 day trip", "plan for me", "schedule"), create a structured travel plan:
+   - Organize by Day > Meal (Lunch/Dinner).
+   - Group restaurants geographically to minimize travel time (e.g., Dotonbori + Shinsaibashi).
+   - Include the restaurant name, category, price range, and a "Why go here" tip based on the description.
+3. If the user asks for something not in the data, politely say you only know these specific spots.
+4. Keep the tone helpful and local (use phrases like "Maido", "Okini" occasionally).
+5. Format your response clearly using Markdown headers and lists.
+"""
+
+GROQ_API_KEY = st.secrets.get("GROQ_API_KEY", os.getenv("GROQ_API_KEY", ""))
+if not GROQ_API_KEY:
+    st.warning("⚠️ API Key not found in Secrets. Please add GROQ_API_KEY.")
+    GROQ_API_KEY = st.text_input("Groq API Key", type="password", key="groq_input_key")
+    if not GROQ_API_KEY:
+        st.stop()
+
+client = Groq(api_key=GROQ_API_KEY)
+
+# Display Chat History
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+# Chat Input
+if prompt := st.chat_input("Or type your own request..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    
+    with st.chat_message("assistant"):
+        with st.spinner("Planning your trip..."):
+            try:
+                response = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}],
+                    temperature=0.5,
+                    max_tokens=1000
+                )
+                reply = response.choices[0].message.content
+                st.markdown(reply)
+                st.session_state.messages.append({"role": "assistant", "content": reply})
+            except Exception as e:
+                st.error(f"Error: {e}")
 
 # Sidebar
 st.sidebar.header("Search & Filters")
@@ -412,6 +489,13 @@ else:
 
 st.sidebar.markdown("---")
 
+# Pagination
+items_per_page = 12
+page = st.sidebar.number_input("Page", min_value=1, max_value=max(1, (len(filtered_data) + items_per_page - 1) // items_per_page), value=1)
+start_idx = (page - 1) * items_per_page
+end_idx = start_idx + items_per_page
+page_data = filtered_data[start_idx:end_idx]
+
 # Map
 st.sidebar.header("🗺️ Map View")
 show_map = st.sidebar.checkbox("Show Restaurant Map", value=False)
@@ -439,97 +523,12 @@ if show_map and filtered_data:
         popup_html = f"""
         <div style="width: 220px; padding: 8px; font-family: Inter, sans-serif;">
             <b style="font-size: 14px; color: #1a1a2e;">{restaurant.get('name', 'N/A')}</b><br>
-            <span style="color: #64748b; font-size: 12px;"> {restaurant.get('category', 'N/A')}</span><br>
+            <span style="color: #64748b; font-size: 12px;">🍴 {restaurant.get('category', 'N/A')}</span><br>
             <span style="color: #475569; font-size: 12px;">📞 {restaurant.get('phone', 'N/A')}</span>
         </div>
         """
         folium.Marker(coords, popup=folium.Popup(popup_html, max_width=300), tooltip=restaurant.get('name')).add_to(m)
     st_folium(m, width=700, height=500, use_container_width=True)
-
-# === AI CHAT SECTION (MOVED TO TOP) ===
-st.markdown("---")
-st.subheader("💬 AI Travel Planner")
-
-# Quick Actions for Itinerary Builder
-st.markdown('<div style="margin-bottom: 1rem;">', unsafe_allow_html=True)
-col_q1, col_q2, col_q3 = st.columns(3)
-with col_q1:
-    if st.button("📅 Plan a 3-Day Trip", type="secondary"):
-        st.session_state.messages.append({"role": "user", "content": "Create a 3-day food itinerary for Osaka covering different areas each day."})
-        st.rerun()
-with col_q2:
-    if st.button("❤️ Best Date Night", type="secondary"):
-        st.session_state.messages.append({"role": "user", "content": "Recommend the best romantic dinner spots for a date night."})
-        st.rerun()
-with col_q3:
-    if st.button(" Budget Eats", type="secondary"):
-        st.session_state.messages.append({"role": "user", "content": "Find the best budget-friendly street food and cheap eats."})
-        st.rerun()
-st.markdown('</div>', unsafe_allow_html=True)
-
-# Context Preparation
-context_items = filtered_data[:50] if filtered_data else osaka_data[:50]
-context_text = "\n".join([f"{r.get('name')}: {r.get('category')} in {r.get('area')}, {r.get('price_range')} - {r.get('description', '')}" for r in context_items])
-
-# ENHANCED SYSTEM PROMPT FOR ITINERARIES
-SYSTEM_PROMPT = f"""You are an expert Osaka travel planner and food guide.
-
-RESTAURANT DATABASE:
-{context_text}
-
-INSTRUCTIONS:
-1. Answer questions about specific restaurants using ONLY the provided data.
-2. If the user asks for an ITINERARY (e.g., "3 day trip", "plan for me", "schedule"), create a structured travel plan:
-   - Organize by Day > Meal (Lunch/Dinner).
-   - Group restaurants geographically to minimize travel time (e.g., Dotonbori + Shinsaibashi).
-   - Include the restaurant name, category, price range, and a "Why go here" tip based on the description.
-3. If the user asks for something not in the data, politely say you only know these specific spots.
-4. Keep the tone helpful and local (use phrases like "Maido", "Okini" occasionally).
-5. Format your response clearly using Markdown headers and lists.
-"""
-
-GROQ_API_KEY = st.secrets.get("GROQ_API_KEY", os.getenv("GROQ_API_KEY", ""))
-if not GROQ_API_KEY:
-    GROQ_API_KEY = st.text_input("Groq API Key", type="password")
-    if not GROQ_API_KEY:
-        st.stop()
-
-client = Groq(api_key=GROQ_API_KEY)
-
-# Display Chat History
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
-
-# Chat Input
-if prompt := st.chat_input("Ask for recommendations or 'Plan a 2-day trip'..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-    
-    with st.chat_message("assistant"):
-        with st.spinner("Planning your trip..."):
-            try:
-                response = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
-                    messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}],
-                    temperature=0.5,
-                    max_tokens=1000
-                )
-                reply = response.choices[0].message.content
-                st.markdown(reply)
-                st.session_state.messages.append({"role": "assistant", "content": reply})
-            except Exception as e:
-                st.error(f"Error: {e}")
-
-st.sidebar.success(f"✅ {len(osaka_data)} restaurants loaded")
-
-# Pagination
-items_per_page = 12
-page = st.sidebar.number_input("Page", min_value=1, max_value=max(1, (len(filtered_data) + items_per_page - 1) // items_per_page), value=1)
-start_idx = (page - 1) * items_per_page
-end_idx = start_idx + items_per_page
-page_data = filtered_data[start_idx:end_idx]
 
 # Display restaurants
 if page_data:
@@ -566,7 +565,7 @@ if page_data:
                 if restaurant.get('phone'):
                     st.markdown(f"📞 {restaurant.get('phone')}")
                 if restaurant.get('hours'):
-                    st.markdown(f" {restaurant.get('hours')} (Closed: {restaurant.get('closed', 'None')})")
+                    st.markdown(f"🕐 {restaurant.get('hours')} (Closed: {restaurant.get('closed', 'None')})")
                 
                 st.markdown("---")
                 if restaurant.get('description'):
@@ -638,10 +637,12 @@ if page_data:
                         if gdata:
                             if gdata.get('rating'):
                                 st.markdown(f'<div class="google-badge">⭐ {gdata["rating"]}/5 ({gdata["total_ratings"]} reviews)</div>', unsafe_allow_html=True)
-                            st.markdown("🟢 Open Now" if gdata.get('open_now') else "🔴 Closed")
+                            st.markdown(" Open Now" if gdata.get('open_now') else "🔴 Closed")
                             if gdata.get('photo_url'):
                                 st.image(gdata['photo_url'], use_container_width=True)
                         else:
                             st.warning("No live data found")
                 
                 st.divider()
+
+st.sidebar.success(f"✅ {len(osaka_data)} restaurants loaded")
