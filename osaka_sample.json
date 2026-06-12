@@ -1,0 +1,50 @@
+[
+  {
+    "id": "att_01",
+    "name": "Osaka Castle",
+    "category": "attraction",
+    "location": "Chuo-ku",
+    "description": "One of Japan's most famous landmarks. The main tower houses a museum on Toyotomi Hideyoshi. The surrounding park is famous for cherry blossoms.",
+    "tags": ["history", "park", "cherry-blossom", "museum"]
+  },
+  {
+    "id": "att_02",
+    "name": "Dotonbori",
+    "category": "attraction",
+    "location": "Chuo-ku (Minami)",
+    "description": "Osaka's most iconic entertainment district. Famous for neon signs, the Glico Running Man, street food, and canal cruises. The heart of Osaka's kuidaore (eat till you drop) culture.",
+    "tags": ["nightlife", "street-food", "photo-spot", "canal"]
+  },
+  {
+    "id": "rest_01",
+    "name": "Kani Doraku Dotonbori",
+    "category": "restaurant",
+    "location": "Dotonbori",
+    "description": "Historic crab restaurant famous for its giant moving crab sign. Offers teppanyaki, hot pots, and all-you-can-eat crab courses.",
+    "tags": ["crab", "premium", "iconic", "seafood"]
+  },
+  {
+    "id": "rest_02",
+    "name": "Daruma Kushikatsu",
+    "category": "restaurant",
+    "location": "Shinsekai",
+    "description": "The birthplace of kushikatsu (deep-fried skewers). Famous for their no-double-dipping sauce rule. Casual, standing-room vibe.",
+    "tags": ["kushikatsu", "budget", "local-favorite", "standing-bar"]
+  },
+  {
+    "id": "event_01",
+    "name": "Tenjin Matsuri",
+    "category": "event",
+    "location": "Tenmangu Shrine / Okawa River",
+    "description": "One of Japan's top 3 festivals. Held every July 24-25. Features a massive boat procession, fireworks, and traditional music along the Okawa River.",
+    "tags": ["festival", "july", "traditional", "fireworks"]
+  },
+  {
+    "id": "info_01",
+    "name": "Osaka Amazing Pass",
+    "category": "campaign",
+    "location": "Citywide",
+    "description": "A tourist pass offering free entry to 40+ attractions and unlimited subway/bus rides for 1 or 2 days. Highly recommended for first-time visitors.",
+    "tags": ["transport", "discount", "must-buy", "tourist-pass"]
+  }
+]
